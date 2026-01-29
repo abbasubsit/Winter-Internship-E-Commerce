@@ -11,26 +11,67 @@ const cartSlice = createSlice({
     initialState,
     reducers: {
         addToCart: (state, action) => {
-            const item = action.payload; // Jo product naya aya
-
-            // 1. Check karo kya item pehle se cart mein hai?
+            const item = action.payload;
+            const quantityToAdd = item.qty || 1;
             const existItem = state.cartItems.find((x) => x._id === item._id);
 
-            if (existItem) {
-                // ❌ OLD LOGIC: state.cartItems = state.cartItems.map(...) -> Yeh replace kar raha tha
+            // --- STOCK CHECK LOGIC ---
+            const currentQtyInCart = existItem ? existItem.qty : 0;
+            const totalQtyAfterAdd = currentQtyInCart + quantityToAdd;
 
-                // ✅ NEW LOGIC: Quantity update karo (Purani Qty + Nayi Qty)
+            // Agar total quantity stock se zyada ho rahi hai, toh rok do
+            if (item.stock && totalQtyAfterAdd > item.stock) {
+                // Hum yahan kuch return nahi kar sakte jo UI pe alert dikhaye directly, 
+                // lekin hum state update nahi karenge.
+                // Optional: Aap chahein toh max available stock set kar dein.
+                return;
+            }
+            // -------------------------
+
+            if (existItem) {
                 state.cartItems = state.cartItems.map((x) =>
                     x._id === existItem._id
-                        ? { ...x, qty: x.qty + 1 } // Sirf count badhao
+                        ? { ...x, qty: x.qty + quantityToAdd }
                         : x
                 );
             } else {
-                // Agar naya hai, toh qty 1 ke sath add karo
-                state.cartItems = [...state.cartItems, { ...item, qty: 1 }];
+                state.cartItems = [...state.cartItems, { ...item, qty: quantityToAdd }];
             }
 
-            // LocalStorage update
+            localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+        },
+
+        increaseQty: (state, action) => {
+            const itemId = action.payload;
+            const existItem = state.cartItems.find((x) => x._id === itemId);
+
+            if (existItem) {
+                // --- STOCK CHECK LOGIC ---
+                // Check karo agar next qty (current + 1) stock se zyada hai
+                if (existItem.stock && existItem.qty + 1 > existItem.stock) {
+                    // Kuch mat karo (Quantity badhao mat)
+                    return;
+                }
+                // -------------------------
+
+                state.cartItems = state.cartItems.map((x) =>
+                    x._id === itemId ? { ...x, qty: x.qty + 1 } : x
+                );
+                localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+            }
+        },
+
+        decreaseQty: (state, action) => {
+            const itemId = action.payload;
+            const existItem = state.cartItems.find((x) => x._id === itemId);
+
+            if (existItem.qty === 1) {
+                state.cartItems = state.cartItems.filter((x) => x._id !== itemId);
+            } else {
+                state.cartItems = state.cartItems.map((x) =>
+                    x._id === itemId ? { ...x, qty: x.qty - 1 } : x
+                );
+            }
             localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
         },
 
@@ -39,7 +80,6 @@ const cartSlice = createSlice({
             localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
         },
 
-        // ✅ NEW: Jab logout ho to cart saaf karne ke liye
         clearCart: (state) => {
             state.cartItems = [];
             localStorage.removeItem("cartItems");
@@ -47,5 +87,5 @@ const cartSlice = createSlice({
     },
 });
 
-export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
+export const { addToCart, increaseQty, decreaseQty, removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;
