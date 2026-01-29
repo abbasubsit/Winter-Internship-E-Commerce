@@ -4,7 +4,10 @@ import { Trash2, Minus, Plus, ArrowRight } from "lucide-react";
 import { removeFromCart, decreaseQty, increaseQty } from "../redux/cartSlice";
 
 const CartPage = () => {
+    // 1. Redux se User Info bhi nikalo (Login status check karne ke liye)
     const { cartItems } = useSelector((state) => state.cart);
+    const { userInfo } = useSelector((state) => state.auth); // ✅ Added this
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -12,11 +15,17 @@ const CartPage = () => {
     const shipping = total > 200 ? 0 : 15;
     const finalTotal = total + shipping;
 
+    // ✅ FIXED: Smart Checkout Handler
     const checkoutHandler = () => {
-        navigate('/login?redirect=shipping');
+        if (userInfo) {
+            // Agar user pehle se logged in hai, to seedha Shipping page par jao
+            navigate('/shipping');
+        } else {
+            // Agar login nahi hai, to Login page par bhejo
+            navigate('/login?redirect=shipping');
+        }
     }
 
-    // ✅ New Handler: Check Stock before Increasing
     const handleIncreaseQty = (item) => {
         if (item.stock && item.qty >= item.stock) {
             alert(`Oops! Only ${item.stock} items available in stock.`);
@@ -38,9 +47,12 @@ const CartPage = () => {
                 </div>
             ) : (
                 <div className="grid md:grid-cols-3 gap-12">
+
+                    {/* LEFT SIDE: Cart Items List */}
                     <div className="md:col-span-2 space-y-8">
                         {cartItems.map((item) => (
                             <div key={item._id} className="flex gap-6 py-6 border-b border-gray-100 last:border-0">
+                                {/* Product Image */}
                                 <div className="w-32 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden relative">
                                     <img
                                         src={item.images && item.images[0] ? `http://localhost:5000${item.images[0]}` : "https://via.placeholder.com/150"}
@@ -48,7 +60,6 @@ const CartPage = () => {
                                         className="w-full h-full object-cover mix-blend-multiply"
                                         onError={(e) => { e.target.src = "https://via.placeholder.com/150"; }}
                                     />
-                                    {/* Stock Badge (Optional) */}
                                     {item.stock && item.stock < 5 && (
                                         <span className="absolute bottom-1 right-1 bg-red-500 text-white text-[10px] px-1.5 rounded">
                                             Only {item.stock} left
@@ -56,6 +67,7 @@ const CartPage = () => {
                                     )}
                                 </div>
 
+                                {/* Product Details */}
                                 <div className="flex-1 flex flex-col justify-between">
                                     <div>
                                         <div className="flex justify-between items-start">
@@ -72,6 +84,7 @@ const CartPage = () => {
                                         {item.selectedSize && <p className="text-gray-500 text-sm mt-1">Size: {item.selectedSize}</p>}
                                     </div>
 
+                                    {/* Actions Row */}
                                     <div className="flex justify-between items-end mt-4">
                                         <div className="flex items-center space-x-4">
                                             <div className="flex items-center border border-gray-300 rounded-full px-2 py-1">
@@ -84,13 +97,11 @@ const CartPage = () => {
                                                 </button>
                                                 <span className="w-8 text-center font-bold text-sm">{item.qty}</span>
                                                 <button
-                                                    // ✅ UPDATE: Custom Handler call kiya hai
                                                     onClick={() => handleIncreaseQty(item)}
                                                     className={`w-8 h-8 flex items-center justify-center rounded-full transition ${item.stock && item.qty >= item.stock
                                                             ? "text-gray-300 cursor-not-allowed"
                                                             : "text-gray-600 hover:text-black hover:bg-gray-100"
                                                         }`}
-                                                    // Optional: Disable button visually
                                                     disabled={item.stock && item.qty >= item.stock}
                                                 >
                                                     <Plus size={14} strokeWidth={3} />
@@ -111,7 +122,7 @@ const CartPage = () => {
                         ))}
                     </div>
 
-                    {/* Summary Section Same as before... */}
+                    {/* RIGHT SIDE: Summary Card */}
                     <div className="h-fit">
                         <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-xl sticky top-24">
                             <h2 className="text-2xl font-extrabold mb-6 text-[#111111]">Summary</h2>

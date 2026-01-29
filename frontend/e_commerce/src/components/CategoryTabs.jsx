@@ -1,7 +1,7 @@
 import React from 'react';
 
 const categories = [
-    'All', 'Shorts', 'Hat', 'Jackets', 'Shoes', 'T-Shirt'
+    'All', 'Men\'s Kurta', 'T-Shirt', 'Jackets', 'Shoes', 'Hat'
 ];
 
 const CategoryTabs = ({ activeCategory, onCategoryChange }) => {
