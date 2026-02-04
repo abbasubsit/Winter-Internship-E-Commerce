@@ -45,39 +45,59 @@ const Navbar = () => {
                 {/* 1. Logo */}
                 <Link to="/" className="text-2xl font-bold text-yellow-400 flex-shrink-0">
                     SMV-ECOM
+                    {userInfo?.role === 'seller' && <span className="text-xs text-gray-400 ml-2 font-normal">(Seller Panel)</span>}
                 </Link>
 
-                {/* 2. Navigation Links (Moved next to Logo with spacing) */}
+                {/* 2. Navigation Links (Yahan Changes kiye hain) */}
                 <div className="hidden md:flex items-center space-x-6 ml-10">
-                    <Link to="/" className="hover:text-yellow-400 transition font-medium text-sm">Home</Link>
-                    <Link to="/menProducts" className="hover:text-yellow-400 transition font-medium text-sm">Men</Link>
-                    <Link to="/womenProducts" className="hover:text-yellow-400 transition font-medium text-sm">Women</Link>
-                    <Link to="/electronicProducts" className="hover:text-yellow-400 transition font-medium text-sm">Electronics</Link>
-                    <Link to="/trendingProducts" className="hover:text-yellow-400 transition font-medium text-sm">Trending</Link>
+
+                    {userInfo && userInfo.role === 'seller' ? (
+                        // --- SELLER TABS (Agar Seller login hai) ---
+                        <>
+                            <Link to="/seller/dashboard" className="hover:text-yellow-400 transition font-medium text-sm">Dashboard</Link>
+                            <Link to="/seller/products" className="hover:text-yellow-400 transition font-medium text-sm">My Products</Link>
+                            <Link to="/seller/orders" className="hover:text-yellow-400 transition font-medium text-sm">Orders</Link>
+                            {/* Add Product ko thoda highlight kiya hai */}
+                            <Link to="/seller/dashboard" className="text-gray-900 bg-yellow-400 px-3 py-1 rounded hover:bg-yellow-300 transition font-bold text-sm">
+                                + Add Product
+                            </Link>
+                        </>
+                    ) : (
+                        // --- CUSTOMER TABS (Purana Design) ---
+                        <>
+                            <Link to="/" className="hover:text-yellow-400 transition font-medium text-sm">Home</Link>
+                            <Link to="/menProducts" className="hover:text-yellow-400 transition font-medium text-sm">Men</Link>
+                            <Link to="/womenProducts" className="hover:text-yellow-400 transition font-medium text-sm">Women</Link>
+                            <Link to="/electronicProducts" className="hover:text-yellow-400 transition font-medium text-sm">Electronics</Link>
+                            <Link to="/trendingProducts" className="hover:text-yellow-400 transition font-medium text-sm">Trending</Link>
+                        </>
+                    )}
                 </div>
 
-                {/* 3. Right Side Icons (Pushed to end) */}
+                {/* 3. Right Side Icons */}
                 <div className="flex items-center space-x-6 ml-auto">
 
                     {/* Seller Button (Only if NOT logged in) */}
                     {!userInfo && (
                         <Link
-                            to="/seller-register" // Iska page baad mein bana lena
+                            to="/seller-register"
                             className="hidden md:flex items-center bg-gray-800 border border-gray-700 px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-700 transition"
                         >
                             <Store size={14} className="mr-1.5 text-yellow-400" /> Become a Seller
                         </Link>
                     )}
 
-                    {/* Cart Icon */}
-                    <Link to="/cart" className="relative hover:text-yellow-400 transition">
-                        <ShoppingCart size={24} />
-                        {totalItems > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
-                                {totalItems}
-                            </span>
-                        )}
-                    </Link>
+                    {/* Cart Icon (Seller ko shayad cart ki zaroorat na ho, par abhi rehne diya hai design maintain karne ke liye) */}
+                    {userInfo?.role !== 'seller' && (
+                        <Link to="/cart" className="relative hover:text-yellow-400 transition">
+                            <ShoppingCart size={24} />
+                            {totalItems > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
+                                    {totalItems}
+                                </span>
+                            )}
+                        </Link>
+                    )}
 
                     {/* Profile Dropdown Icon */}
                     <div className="relative" ref={dropdownRef}>

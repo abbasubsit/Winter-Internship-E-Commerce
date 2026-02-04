@@ -65,4 +65,49 @@ const getMyOrders = async (req, res) => {
     }
 };
 
-export { addOrderItems, getMyOrders };
+// ✅ NEW FUNCTION: Seller ke orders lane ke liye
+// @desc    Get orders containing seller's products
+// @route   GET /api/orders/sellerorders
+// @access  Private (Seller)
+const getSellerOrders = async (req, res) => {
+    try {
+        // 1. Pehle seller ke saare products dhoondo
+        // Note: Aapke product schema me 'sellerId' use hua hai ya 'user', wo check karlena. 
+        // Aapne jo schema bheja tha usme 'sellerId' tha.
+        const products = await Product.find({ sellerId: req.user._id });
+
+        // Un products ki IDs nikalo
+        const productIds = products.map(p => p._id);
+
+        // 2. Ab wo orders dhoondo jisme inme se koi bhi product ho
+        const orders = await Order.find({
+            'items.productId': { $in: productIds }
+        })
+            .populate('customerId', 'name email') // Customer ka naam dekhne ke liye
+            .sort({ createdAt: -1 }); // Latest order pehle
+
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update Order Status (Seller)
+// @route   PUT /api/orders/:id/status
+const updateOrderStatus = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (order) {
+            order.status = req.body.status;
+            const updatedOrder = await order.save();
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export { addOrderItems, getMyOrders, getSellerOrders, updateOrderStatus };
