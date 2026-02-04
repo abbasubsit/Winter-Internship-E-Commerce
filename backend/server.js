@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import productRoutes from './routes/productRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes); // Add this
 app.use('/api/products', productRoutes);  
 app.use('/api/orders', orderRoutes); // ✅ YEH LINE ZAROORI HAI (Missing thi)
+app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);  // Add this
 
 

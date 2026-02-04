@@ -4,22 +4,23 @@ const initialState = {
     cartItems: localStorage.getItem("cartItems")
         ? JSON.parse(localStorage.getItem("cartItems"))
         : [],
-
-    // ✅ 1. Shipping Address (LocalStorage se uthao agar hai)
     shippingAddress: localStorage.getItem("shippingAddress")
         ? JSON.parse(localStorage.getItem("shippingAddress"))
         : {},
-
-    // ✅ 2. Payment Method
-    paymentMethod: 'COD', // Default
+    paymentMethod: 'COD',
 };
 
 const cartSlice = createSlice({
     name: "cart",
     initialState,
     reducers: {
+        // ✅ NEW ACTION: Database se cart set karne ke liye
+        setCart: (state, action) => {
+            state.cartItems = action.payload;
+            localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+        },
+
         addToCart: (state, action) => {
-            // ... (Purana logic same rahega) ...
             const item = action.payload;
             const quantityToAdd = item.qty || 1;
             const existItem = state.cartItems.find((x) => x._id === item._id);
@@ -35,7 +36,6 @@ const cartSlice = createSlice({
         },
 
         increaseQty: (state, action) => {
-            // ... (Purana logic same) ...
             const itemId = action.payload;
             const existItem = state.cartItems.find((x) => x._id === itemId);
             if (existItem) {
@@ -47,7 +47,6 @@ const cartSlice = createSlice({
         },
 
         decreaseQty: (state, action) => {
-            // ... (Purana logic same) ...
             const itemId = action.payload;
             const existItem = state.cartItems.find((x) => x._id === itemId);
             if (existItem.qty === 1) {
@@ -70,13 +69,11 @@ const cartSlice = createSlice({
             localStorage.removeItem("cartItems");
         },
 
-        // ✅ NEW: Save Shipping Address
         saveShippingAddress: (state, action) => {
             state.shippingAddress = action.payload;
             localStorage.setItem("shippingAddress", JSON.stringify(action.payload));
         },
 
-        // ✅ NEW: Save Payment Method
         savePaymentMethod: (state, action) => {
             state.paymentMethod = action.payload;
             localStorage.setItem("paymentMethod", JSON.stringify(action.payload));
@@ -85,13 +82,8 @@ const cartSlice = createSlice({
 });
 
 export const {
-    addToCart,
-    increaseQty,
-    decreaseQty,
-    removeFromCart,
-    clearCart,
-    saveShippingAddress, // Export this
-    savePaymentMethod    // Export this
+    addToCart, increaseQty, decreaseQty, removeFromCart, clearCart,
+    saveShippingAddress, savePaymentMethod, setCart // ✅ Export setCart
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

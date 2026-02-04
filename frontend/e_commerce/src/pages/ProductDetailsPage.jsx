@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // useNavigate add kiya
 import axios from "axios";
 import { Star, Minus, Plus, ChevronDown, ChevronUp, ShoppingBag, Heart } from "lucide-react";
-
-// ✅ REAL IMPORTS (Redux is required for this logic)
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 
 const ProductDetailsPage = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
+    const navigate = useNavigate(); // Navigation hook
 
-    // ✅ 1. Cart ka data nikalo taaki check kar sakein pehle se kitna hai
+    // 1. User Info nikalo
+    const { userInfo } = useSelector((state) => state.auth);
     const { cartItems } = useSelector((state) => state.cart);
 
     const [product, setProduct] = useState(null);
@@ -23,7 +23,6 @@ const ProductDetailsPage = () => {
     const [activeImage, setActiveImage] = useState("");
     const [openSection, setOpenSection] = useState("description");
 
-    // Fetch Product Data
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -45,18 +44,22 @@ const ProductDetailsPage = () => {
     if (loading) return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;
     if (!product) return <div className="flex justify-center items-center h-screen text-xl">Product not found</div>;
 
-    // --- 🛠️ UPDATED ADD TO CART LOGIC ---
+    // --- ADD TO CART HANDLER ---
     const handleAddToCart = () => {
-        // 1. Size Validation
+        // 2. CHECK LOGIN STATUS
+        if (!userInfo) {
+            alert("Please login to add items to cart.");
+            navigate("/login");
+            return;
+        }
+
         if (product.size && product.size.length > 0 && !selectedSize) {
             alert("Please select a size");
             return;
         }
 
-        // 2. Calculate Available Stock
         let availableStock = product.stock;
 
-        // Agar size specific stock hai
         if (selectedSize && product.size) {
             const sizeObj = product.size.find(s => s.name === selectedSize);
             if (sizeObj) {
@@ -64,20 +67,15 @@ const ProductDetailsPage = () => {
             }
         }
 
-        // 3. Check Existing Quantity in Cart
-        // Hum check kar rahe hain ke kya ye product pehle se cart mein hai?
         const existingItem = cartItems.find((item) => item._id === product._id);
         const currentQtyInCart = existingItem ? existingItem.qty : 0;
 
-        // 4. Final Validation
-        // Formula: (Jo Cart mein hai) + (Jo abhi maanga) > (Total Stock)
         if (currentQtyInCart + quantity > availableStock) {
             const remainingAllowed = availableStock - currentQtyInCart;
             alert(`Cannot add! You already have ${currentQtyInCart} in cart. Only ${remainingAllowed} more available.`);
-            return; // Yahan ruk jao, Redux action fire mat karo
+            return;
         }
 
-        // 5. Success
         dispatch(addToCart({ ...product, qty: quantity, selectedSize }));
         alert("Added to Cart Successfully!");
     };
@@ -91,12 +89,15 @@ const ProductDetailsPage = () => {
         return img.startsWith("http") ? img : `http://localhost:5000${img}`;
     };
 
+    // ... (Baaki Return UI Same Rahega)
+    // ... (Poora code wahi hai jo pichle step mein tha, bas handleAddToCart update hua hai)
+
     return (
         <div className="bg-white min-h-screen py-12">
             <div className="container mx-auto px-4 max-w-7xl">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+                    {/* ... (Images Section) ... */}
 
-                    {/* LEFT SIDE: IMAGE GALLERY */}
                     <div className="flex flex-col-reverse lg:flex-row gap-4">
                         <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible py-2 lg:py-0 scrollbar-hide">
                             {product.images && product.images.map((img, index) => (
@@ -120,7 +121,7 @@ const ProductDetailsPage = () => {
                         </div>
                     </div>
 
-                    {/* RIGHT SIDE: PRODUCT INFO */}
+                    {/* ... (Info Section) ... */}
                     <div className="flex flex-col">
                         <div className="mb-8">
                             <h1 className="text-3xl lg:text-4xl font-extrabold text-[#111111] tracking-tight mb-2">

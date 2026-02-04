@@ -1,85 +1,236 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Star, Minus, Plus, ChevronDown, ChevronUp, ShoppingBag, Heart } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../redux/cartSlice";
+import { logout } from "../redux/authSlice"; // ✅ Logout action import kiya
 
-// Note: Asal project mein niche wali 2 lines uncomment karein (Redux ke liye)
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../redux/cartSlice'; 
-
-const TrendingProductCard = ({ product }) => {
+const ProductDetailsPage = () => {
+    const { id } = useParams();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    // 1. Image Path Handling (Database vs Local)
-    // Agar product undefined hai to crash na ho
-    if (!product) return null;
+    const { userInfo } = useSelector((state) => state.auth);
+    const { cartItems } = useSelector((state) => state.cart);
 
-    const imageSrc = product.images && product.images.length > 0
-        ? `http://localhost:5000${product.images[0]}`
-        : 'https://via.placeholder.com/300';
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // 2. Add to Cart Handler
-    const handleAddToCart = (e) => {
-        e.preventDefault(); // Parent link click na ho
-        // Asal project mein yeh use karein:
-         dispatch(addToCart({ ...product, qty: 1 }));
-        
+    const [selectedSize, setSelectedSize] = useState("");
+    const [quantity, setQuantity] = useState(1);
+    const [activeImage, setActiveImage] = useState("");
+    const [openSection, setOpenSection] = useState("description");
+
+    // 🔥 SELF-HEALING EFFECT: Bad Data Detector
+    // Yeh check karega ke agar userInfo "Array" hai (jo ke ghalat hai), to foran logout kar dega.
+    useEffect(() => {
+        if (userInfo && Array.isArray(userInfo)) {
+            console.warn("⚠️ Corrupted Data Detected! Force Logging out...");
+            dispatch(logout()); // Data saaf karo
+            navigate("/login"); // Login pe bhejo
+        }
+    }, [userInfo, dispatch, navigate]);
+
+    // Fetch Product Data
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
+                setProduct(data);
+                if (data.images && data.images.length > 0) {
+                    setActiveImage(data.images[0]);
+                }
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching product:", error);
+                setLoading(false);
+            }
+        };
+
+        if (id) fetchProduct();
+    }, [id]);
+
+    if (loading) return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;
+    if (!product) return <div className="flex justify-center items-center h-screen text-xl">Product not found</div>;
+
+    // --- ADD TO CART HANDLER ---
+    const handleAddToCart = () => {
+
+        // 1️⃣ ROBUST LOGIN CHECK
+        // Check: Agar user nahi hai OR user Array hai OR user ke paas ID nahi hai
+        if (!userInfo || Array.isArray(userInfo) || !userInfo._id) {
+            alert("🔒 You need to Login first!");
+            // Agar ghalat data hai to saaf bhi kar do
+            if (userInfo) dispatch(logout());
+            navigate("/login");
+            return;
+        }
+
+        // 2️⃣ Size Validation
+        if (product.size && product.size.length > 0 && !selectedSize) {
+            alert("Please select a size");
+            return;
+        }
+
+        // 3️⃣ Stock Logic
+        let availableStock = product.stock;
+        if (selectedSize && product.size) {
+            const sizeObj = product.size.find(s => s.name === selectedSize);
+            if (sizeObj) availableStock = sizeObj.quantity;
+        }
+
+        const existingItem = cartItems.find((item) => item._id === product._id);
+        const currentQtyInCart = existingItem ? existingItem.qty : 0;
+
+        if (currentQtyInCart + quantity > availableStock) {
+            const remainingAllowed = availableStock - currentQtyInCart;
+            if (remainingAllowed <= 0) {
+                alert("❌ Out of Stock! No more items available.");
+            } else {
+                alert(`⚠️ Cannot add! You have ${currentQtyInCart} in cart. Only ${remainingAllowed} more available.`);
+            }
+            return;
+        }
+
+        // 4️⃣ Success
+        dispatch(addToCart({ ...product, qty: quantity, selectedSize }));
+        alert("✅ Added to Cart Successfully!");
     };
 
-    const price = product.price || 0;
-    // Fake original price logic for display
-    const fakeOriginalPrice = product.discountedPrice ? product.price : (price * 1.2).toFixed(2);
-    const displayPrice = product.discountedPrice || price;
+    const toggleSection = (section) => {
+        setOpenSection(openSection === section ? "" : section);
+    };
+
+    const imageSrc = (img) => {
+        if (!img) return "https://via.placeholder.com/600";
+        return img.startsWith("http") ? img : `http://localhost:5000${img}`;
+    };
 
     return (
-        <div className="group relative flex flex-col items-start w-full">
-            {/* Image Container */}
-            <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-gray-100 mb-4 cursor-pointer">
-                <Link to={`/product/${product._id}`}>
-                    <img
-                        src={imageSrc}
-                        alt={product.title || "Product"}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                </Link>
+        <div className="bg-white min-h-screen py-12">
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
 
-                {/* Heart Icon (Static for now) */}
-                <button className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors z-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.4} stroke="currentColor" className="w-6 h-6 text-red-600">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                    </svg>
-                </button>
+                    {/* Images */}
+                    <div className="flex flex-col-reverse lg:flex-row gap-4">
+                        <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible py-2 lg:py-0 scrollbar-hide">
+                            {product.images && product.images.map((img, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setActiveImage(img)}
+                                    className={`w-16 h-16 lg:w-20 lg:h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === img ? "border-black" : "border-transparent hover:border-gray-200"
+                                        }`}
+                                >
+                                    <img src={imageSrc(img)} alt="Thumbnail" className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex-1 bg-gray-50 rounded-2xl overflow-hidden aspect-[4/5] relative group">
+                            <img
+                                src={imageSrc(activeImage)}
+                                alt={product.title}
+                                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                            />
+                        </div>
+                    </div>
 
-                {/* Add to Cart Button */}
-                <div className="absolute inset-x-4 bottom-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-10">
-                    <button
-                        onClick={handleAddToCart}
-                        className="w-full bg-[#1e293b] text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#0f172a] shadow-xl"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                        </svg>
-                        ADD TO CART
-                    </button>
-                </div>
-            </div>
+                    {/* Info */}
+                    <div className="flex flex-col">
+                        <div className="mb-8">
+                            <h1 className="text-3xl lg:text-4xl font-extrabold text-[#111111] tracking-tight mb-2">
+                                {product.title}
+                            </h1>
+                            <div className="flex items-center gap-4 mb-4">
+                                <span className="text-2xl font-medium text-[#111111]">
+                                    ${product.discountedPrice || product.price}
+                                </span>
+                                {product.discountedPrice && (
+                                    <span className="text-lg text-gray-400 line-through">${product.price}</span>
+                                )}
+                            </div>
+                        </div>
 
-            {/* Content */}
-            <div className="w-full">
-                {/* Category Name handling */}
-                <p className="text-red-500 font-medium text-xs mb-1 uppercase tracking-wide">
-                    {product.category?.name || "Trending"}
-                </p>
-                <Link to={`/product/${product._id}`}>
-                    <h3 className="text-[#1e293b] font-bold text-lg leading-tight mb-2 truncate hover:text-blue-600 transition">
-                        {product.title || "Product Title"}
-                    </h3>
-                </Link>
-                <div className="flex items-center gap-2">
-                    <span className="text-[#1e293b] font-bold text-lg">${displayPrice}</span>
-                    <span className="text-gray-400 text-sm line-through">${fakeOriginalPrice}</span>
+                        {/* Size */}
+                        {product.size && product.size.length > 0 && (
+                            <div className="mb-8">
+                                <div className="flex justify-between items-center mb-3">
+                                    <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wide">Select Size</h3>
+                                </div>
+                                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                                    {product.size.map((s) => (
+                                        <button
+                                            key={s.name}
+                                            onClick={() => setSelectedSize(s.name)}
+                                            disabled={s.quantity === 0}
+                                            className={`py-3 rounded-md border text-sm font-medium transition-all ${selectedSize === s.name
+                                                    ? "border-black bg-black text-white"
+                                                    : "border-gray-200 text-[#111111] hover:border-black"
+                                                } ${s.quantity === 0 ? "opacity-50 cursor-not-allowed bg-gray-100" : ""}`}
+                                        >
+                                            {s.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="mb-10 space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 w-fit">
+                                    <button
+                                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                        className="text-gray-500 hover:text-black transition"
+                                    >
+                                        <Minus size={18} />
+                                    </button>
+                                    <span className="mx-4 font-semibold w-6 text-center">{quantity < 10 ? `0${quantity}` : quantity}</span>
+                                    <button
+                                        onClick={() => setQuantity(q => q + 1)}
+                                        className="text-gray-500 hover:text-black transition"
+                                    >
+                                        <Plus size={18} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={handleAddToCart}
+                                    className="flex-1 bg-[#111111] text-white py-4 rounded-full font-bold text-lg hover:bg-gray-800 transition-all flex justify-center items-center gap-2"
+                                >
+                                    <ShoppingBag size={20} /> Add to Bag
+                                </button>
+                                <button className="flex items-center justify-center w-14 h-14 rounded-full border border-gray-300 hover:border-black transition text-[#111111]">
+                                    <Heart size={24} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Accordion */}
+                        <div className="border-t border-gray-200">
+                            <div className="border-b border-gray-200">
+                                <button
+                                    onClick={() => toggleSection("description")}
+                                    className="w-full py-6 flex justify-between items-center text-left"
+                                >
+                                    <span className="text-lg font-bold text-[#111111]">Description</span>
+                                    {openSection === "description" ? <ChevronUp /> : <ChevronDown />}
+                                </button>
+                                {openSection === "description" && (
+                                    <div className="pb-6 text-gray-600 leading-relaxed">
+                                        {product.description}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export default TrendingProductCard;
+export default ProductDetailsPage;
