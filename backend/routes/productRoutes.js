@@ -3,30 +3,32 @@ import {
     createProduct,
     getProducts,
     getMyProducts,
-    getTrendingProducts, // <--- Yahan naya function import kiya
-    getProductById
+    getTrendingProducts,
+    getProductById,
+    updateProduct,
+    deleteProduct
 } from '../controllers/productController.js';
 
 import { protect, seller } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// @route   GET /api/products/trending
-// @desc    Get random/trending products
-// Note: Isay hamesha '/:id' wale route se PEHLE rakhna chahiye
+// Trending products route
 router.get('/trending', getTrendingProducts);
 
-// Public (Get All) + Protected (Create)
+// Public route to get all, Private to create
 router.route('/')
     .get(getProducts)
     .post(protect, seller, createProduct);
 
-// Seller ke apne products
+// Seller's own products
 router.route('/myproducts')
     .get(protect, seller, getMyProducts);
 
-// 4. Single Product Route (Dynamic route sabse last mein)
-// ✅ YEH MISSING THA
-router.route('/:id').get(getProductById);
+// Single product operations (Get, Edit, Delete)
+router.route('/:id')
+    .get(getProductById)
+    .put(protect, seller, updateProduct)
+    .delete(protect, seller, deleteProduct);
 
 export default router;

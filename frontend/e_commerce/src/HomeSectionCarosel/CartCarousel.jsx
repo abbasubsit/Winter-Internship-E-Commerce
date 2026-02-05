@@ -14,7 +14,7 @@ const CartCarousel = ({ data, sectionName }) => {
     };
 
     const items = useMemo(() => {
-        return data.slice(0, 10).map((item, index) => (
+        return data.slice(0, 20).map((item, index) => (
             <ProductCard key={index} product={item} />
         ));
     }, [data]);
