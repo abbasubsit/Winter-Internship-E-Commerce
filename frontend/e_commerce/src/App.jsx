@@ -5,6 +5,7 @@ import axios from "axios";
 
 // Components
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import TrendingSection from "./components/TrendingSection";
 import HomeCarousel from './HomeCarosel/HomeCarousel';
 
@@ -13,11 +14,15 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CartPage from "./pages/CartPage";
-import SellerDashboard from "./pages/SellerDashboard"; // Dashboard Import
+import SellerDashboard from "./pages/SellerDashboard"; // Dashboard Import (Seller)
+import AdminDashboard from "./pages/AdminDashboard"; // Dashboard Import (Admin)
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import ShippingPage from "./pages/ShippingPage";
 import PaymentPage from "./pages/PaymentPage";
 import PlaceOrderPage from "./pages/PlaceOrderPage";
+import MyOrdersPage from "./pages/MyOrdersPage";
+import OrderDetailsPage from "./pages/OrderDetailspage";
+import SellerLandingPage from "./pages/SellerLandingPage";
 
 import MenProduct from "./pages/MenProduct";
 import WomenProduct from "./pages/WomenProduct";
@@ -55,7 +60,8 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       {!hideLayout && <Navbar />}
-      {!hideLayout && <HomeCarousel />}
+      {/* Show Carousel only on Home and Trending pages */}
+      {(location.pathname === "/" || location.pathname === "/trendingProducts") && <HomeCarousel />}
 
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -66,18 +72,27 @@ function App() {
         <Route path="/seller/products" element={<SellerDashboard />} />
         <Route path="/seller/orders" element={<SellerDashboard />} />
 
+        {/* --- ADMIN ROUTE --- */}
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
         <Route path="/menProducts" element={<MenProduct />} />
         <Route path="/womenProducts" element={<WomenProduct />} />
         <Route path="/trendingProducts" element={<TrendingSection />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/seller-register" element={<SellerLandingPage />} />
         <Route path="/cart" element={<CartPage />} />
 
         <Route path="/product/:id" element={<ProductDetailsPage />} />
         <Route path="/shipping" element={<ShippingPage />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/placeorder" element={<PlaceOrderPage />} />
+        <Route path="/myorders" element={<MyOrdersPage />} />
+        <Route path="/order/:id" element={<OrderDetailsPage />} />
       </Routes>
+
+      {/* Footer (Hide on Login/Register) */}
+      {!hideLayout && <Footer />}
     </div>
   );
 }

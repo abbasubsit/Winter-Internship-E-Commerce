@@ -46,6 +46,9 @@ const PlaceOrderPage = () => {
             // NOTE: Make sure your backend orderController accepts these fields!
             await axios.post("http://localhost:5000/api/orders", orderData, config);
 
+            // ✅ FIX: Clear Backend Cart explicitly
+            await axios.put("http://localhost:5000/api/users/cart", { cartItems: [] }, config);
+
             alert("Order Placed Successfully!");
             dispatch(clearCart());
             navigate("/"); // Redirect to Home or Order History

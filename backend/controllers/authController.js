@@ -25,7 +25,8 @@ export const registerUser = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || 'customer'
+            role: role || 'customer',
+            isVerified: role === 'seller' ? false : true // Sellers need approval
         });
 
         res.status(201).json({
@@ -33,6 +34,7 @@ export const registerUser = async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
+            isVerified: user.isVerified,
             token: generateToken(user._id, user.role),
         });
 
@@ -56,6 +58,7 @@ export const loginUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                isVerified: user.isVerified,
                 token: generateToken(user._id, user.role),
             });
         } else {

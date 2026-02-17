@@ -40,7 +40,13 @@ const LoginPage = () => {
                 console.log("Cart fetch failed (New user maybe):", cartError);
             }
 
-            navigate("/");
+            if (res.data.role === 'admin') {
+                navigate("/admin/dashboard");
+            } else if (res.data.role === 'seller') {
+                navigate("/seller/dashboard");
+            } else {
+                navigate("/");
+            }
 
         } catch (err) {
             setError(err.response?.data?.message || "Login Failed");

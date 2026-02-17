@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema({
         enum: ['customer', 'seller', 'admin'],
         default: 'customer'
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     //  NEW: Cart ko Database mein save karne ke liye
     cartItems: [
         {

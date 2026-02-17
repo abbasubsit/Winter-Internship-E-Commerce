@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
     LayoutDashboard, Package, ShoppingBag, DollarSign, Plus,
     TrendingUp, Search, Trash2, Edit3, ArrowLeft, Loader, UploadCloud,
-    Truck, CheckCircle, Clock, XCircle
+    Truck, CheckCircle, Clock, XCircle, LogOut // ✅ Added LogOut
 } from "lucide-react";
 
 // ✅ CONFIG: Backend URL
@@ -33,16 +33,70 @@ const SellerDashboard = () => {
     };
 
     // 1. Sync URL
+    // 1. Sync URL
     useEffect(() => {
-        if (location.pathname.includes("/seller/products")) setActiveTab("products");
-        else if (location.pathname.includes("/seller/orders")) setActiveTab("orders");
-        else setActiveTab("overview");
+        const params = new URLSearchParams(location.search);
+        const tabParam = params.get("tab");
+
+        if (tabParam) {
+            setActiveTab(tabParam);
+        } else if (location.pathname.includes("/seller/products")) {
+            setActiveTab("products");
+        } else if (location.pathname.includes("/seller/orders")) {
+            setActiveTab("orders");
+        } else {
+            setActiveTab("overview");
+        }
     }, [location]);
 
     // 2. Auth Check
     useEffect(() => {
-        if (!userInfo || userInfo.role !== "seller") navigate("/");
+        if (!userInfo || userInfo.role !== 'seller') {
+            navigate('/login');
+        } else if (!userInfo.isVerified) {
+            // Stay on page but show pending message (Handled in render)
+        } else {
+            // Fetch data only if verified
+            const fetchProducts = async () => {
+                try {
+                    const config = {
+                        headers: { Authorization: `Bearer ${userInfo.token}` },
+                    };
+                    const { data } = await axios.get('http://localhost:5000/api/products/myproducts', config);
+                    setProducts(data);
+                } catch (error) {
+                    console.error("Error fetching products", error);
+                }
+            };
+            fetchProducts();
+        }
     }, [userInfo, navigate]);
+
+    // ✅ BLOCK ACCESS IF NOT VERIFIED
+    if (userInfo && !userInfo.isVerified) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center px-4">
+                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
+                    <div className="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Approval Pending</h2>
+                    <p className="text-gray-600 mb-6">
+                        Thanks for registering! Your seller account is currently under review by our admin team.
+                        You will have full access to the dashboard once approved.
+                    </p>
+                    <button onClick={() => {
+                        dispatch(logout());
+                        navigate('/'); // ✅ Redirect to Home
+                    }} className="bg-gray-900 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-800 transition">
+                        Go Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     // 3. Data Fetching
     useEffect(() => {
@@ -55,9 +109,9 @@ const SellerDashboard = () => {
                 console.log("📦 Categories Loaded:", catData); // Check Console: Electronics ka ID hai ya nahi?
                 setCategories(catData);
 
-                // Fetch Products
-                const { data: prodData } = await axios.get(`${BASE_URL}/api/products/myproducts`, config);
-                setProducts(prodData);
+                // Fetch Products (This was moved to Auth Check useEffect for verified users)
+                // const { data: prodData } = await axios.get(`${BASE_URL}/api/products/myproducts`, config);
+                // setProducts(prodData);
 
                 // Fetch Orders
                 try {
@@ -126,6 +180,10 @@ const SellerDashboard = () => {
             </nav>
             <div className="p-4 border-t border-gray-700 bg-[#1c2434]">
                 <button onClick={() => { setEditingProduct(null); setActiveTab("add_product"); }} className="flex items-center justify-center w-full px-4 py-3 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all shadow-lg active:scale-95"><Plus size={20} className="mr-2" /> Add Product</button>
+                <button onClick={() => {
+                    dispatch(logout());
+                    navigate('/');
+                }} className="flex items-center justify-center w-full px-4 py-3 mt-2 text-sm font-bold text-red-400 hover:text-red-300 transition-all"><LogOut size={20} className="mr-2" /> Logout</button>
             </div>
         </div>
     );

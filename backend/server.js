@@ -9,6 +9,7 @@ import productRoutes from './routes/productRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'; // ✅ Import Admin Routes
 
 const app = express();
 
@@ -23,11 +24,12 @@ mongoose.connect(process.env.MONGO_URI)
 
 // 2. Use Routes Here
 app.use('/api/auth', authRoutes);
-app.use('/api/categories', categoryRoutes); // Add this
-app.use('/api/products', productRoutes);  
-app.use('/api/orders', orderRoutes); // ✅ YEH LINE ZAROORI HAI (Missing thi)
+app.use('/api/categories', categoryRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/upload', uploadRoutes);  // Add this
+app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes); // ✅ Mount Admin Routes
 
 
 // ... (Make uploads folder static)

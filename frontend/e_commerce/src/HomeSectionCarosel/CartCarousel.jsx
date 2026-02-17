@@ -10,12 +10,14 @@ const CartCarousel = ({ data, sectionName }) => {
     const responsive = {
         0: { items: 1 },
         720: { items: 3 },
-        1024: { items: 5.5 },
+        1024: { items: 4 },
     };
 
     const items = useMemo(() => {
         return data.slice(0, 20).map((item, index) => (
-            <ProductCard key={index} product={item} />
+            <div className="mx-4">
+                <ProductCard key={index} product={item} />
+            </div>
         ));
     }, [data]);
 
@@ -54,10 +56,10 @@ const CartCarousel = ({ data, sectionName }) => {
                 {activeIndex !== items.length - 5 && (
                     <button
                         onClick={slideNext}
-                        className="absolute top-1/2 right-0 z-50 transform -translate-y-1/2 p-2 bg-white rounded-full shadow-lg"
+                        className="absolute top-1/2 -right-4 z-50 transform -translate-y-1/2 p-3 bg-white rounded-md shadow-md hover:shadow-xl transition-all border border-gray-100"
                         aria-label="next"
                     >
-                        <ArrowRight size={24} color="black" />
+                        <ArrowRight size={20} className="text-gray-800" />
                     </button>
                 )}
 
@@ -65,10 +67,10 @@ const CartCarousel = ({ data, sectionName }) => {
                 {activeIndex !== 0 && (
                     <button
                         onClick={slidePrev}
-                        className="absolute top-1/2 left-0 z-50 transform -translate-y-1/2 p-2 bg-white rounded-full shadow-lg"
+                        className="absolute top-1/2 -left-4 z-50 transform -translate-y-1/2 p-3 bg-white rounded-md shadow-md hover:shadow-xl transition-all border border-gray-100"
                         aria-label="prev"
                     >
-                        <ArrowLeft size={24} color="black" />
+                        <ArrowLeft size={20} className="text-gray-800" />
                     </button>
                 )}
             </div>

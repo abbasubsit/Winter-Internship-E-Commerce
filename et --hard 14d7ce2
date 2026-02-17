@@ -1,0 +1,10 @@
+[33md6c2551[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33m14d7ce2[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{1}: commit: Create MyOrders and OrderDetails pages
+[33md6c2551[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{2}: commit: fix Seller System & Customer Product Display (Backend Populate Logic Fixed)
+[33m775c480[m HEAD@{3}: commit: Completed Seller Dashboard with Product & Order Management
+[33me05f384[m HEAD@{4}: commit: Added Men and Women pages & Fixed Cart Persistence
+[33med425ec[m HEAD@{5}: commit: Checkout Flow (Shipping, Payment, Order API) & Cart Logic Fixes
+[33m595aab2[m HEAD@{6}: commit: Update Navbar and Cart page UI
+[33m08d0053[m HEAD@{7}: commit: Save file till 28_jan changes
+[33m143863e[m HEAD@{8}: Branch: renamed refs/heads/master to refs/heads/main
+[33m143863e[m HEAD@{10}: commit (initial): Day 3 Complete: Auth, Products, and Category APIs setup

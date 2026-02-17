@@ -110,4 +110,21 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-export { addOrderItems, getMyOrders, getSellerOrders, updateOrderStatus };
+// @desc    Get order by ID
+// @route   GET /api/orders/:id
+// @access  Private
+const getOrderById = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id).populate('customerId', 'name email');
+
+        if (order) {
+            res.json(order);
+        } else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export { addOrderItems, getMyOrders, getSellerOrders, updateOrderStatus, getOrderById };
