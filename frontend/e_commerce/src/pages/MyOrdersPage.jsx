@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import { getMyOrders } from "../services/orderService";
 import { Loader, Package, AlertCircle, ArrowRight, XCircle, CheckCircle, Clock } from "lucide-react";
 
 const MyOrdersPage = () => {
@@ -18,11 +18,7 @@ const MyOrdersPage = () => {
         } else {
             const fetchMyOrders = async () => {
                 try {
-                    const config = {
-                        headers: { Authorization: `Bearer ${userInfo.token}` },
-                    };
-                    // Backend route jo humne check kiya tha
-                    const { data } = await axios.get("http://localhost:5000/api/orders/myorders", config);
+                    const data = await getMyOrders(userInfo.token);
                     setOrders(data);
                     setLoading(false);
                 } catch (err) {

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-// Make sure path tumhare project ke hisaab se sahi ho
+import { getAllProducts } from "../services/productService";
 import CartCarousel from "../HomeSectionCarosel/CartCarousel";
 
 const MenProduct = () => {
@@ -11,8 +10,7 @@ const MenProduct = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                // Backend se saare products le rahe hain
-                const { data } = await axios.get("http://localhost:5000/api/products");
+                const data = await getAllProducts();
                 setProducts(data);
                 setLoading(false);
             } catch (err) {

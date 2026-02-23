@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, User, LogOut, Store, ChevronDown, Bell } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios"; // Added for fetching pending count
+import { getAllUsers } from "../services/adminService";
 import { logout } from "../redux/authSlice";
 import { clearCart } from "../redux/cartSlice";
 
@@ -26,9 +26,7 @@ const Navbar = () => {
         if (userInfo && userInfo.role === 'admin') {
             const fetchPendingCount = async () => {
                 try {
-                    const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-                    const { data } = await axios.get("http://localhost:5000/api/admin/users", config);
-                    // Count users where role is seller AND isVerified is false
+                    const data = await getAllUsers(userInfo.token);
                     const count = data.filter(u => u.role === 'seller' && !u.isVerified).length;
                     setPendingSellers(count);
                 } catch (error) {

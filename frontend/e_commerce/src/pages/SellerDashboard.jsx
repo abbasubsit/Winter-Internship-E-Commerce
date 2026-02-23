@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Loader } from "lucide-react";
+import { BASE_URL } from "../services/api";
+import { getMyProducts, deleteProduct } from "../services/productService";
+import { getAllCategories } from "../services/categoryService";
+import { getSellerOrders, updateOrderStatus } from "../services/orderService";
 
 // Extracted Components
 import SellerSidebar from "../components/seller/SellerSidebar";
@@ -10,8 +13,6 @@ import SellerProductForm from "../components/seller/SellerProductForm";
 import SellerProductsList from "../components/seller/SellerProductsList";
 import SellerOrdersList from "../components/seller/SellerOrdersList";
 import SellerOverview from "../components/seller/SellerOverview";
-
-const BASE_URL = "http://localhost:5000";
 
 const SellerDashboard = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -59,10 +60,7 @@ const SellerDashboard = () => {
         } else {
             const fetchProducts = async () => {
                 try {
-                    const config = {
-                        headers: { Authorization: `Bearer ${userInfo.token}` },
-                    };
-                    const { data } = await axios.get(`${BASE_URL}/api/products/myproducts`, config);
+                    const data = await getMyProducts(userInfo.token);
                     setProducts(data);
                 } catch (error) {
                     console.error("Error fetching products", error);
@@ -99,15 +97,13 @@ const SellerDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-
                 // Fetch Categories
-                const { data: catData } = await axios.get(`${BASE_URL}/api/categories`);
+                const catData = await getAllCategories();
                 setCategories(catData);
 
                 // Fetch Orders
                 try {
-                    const { data: orderData } = await axios.get(`${BASE_URL}/api/orders/sellerorders`, config);
+                    const orderData = await getSellerOrders(userInfo.token);
                     setOrders(orderData);
                 } catch (err) {
                     console.error("Orders fetch error:", err);
@@ -126,8 +122,7 @@ const SellerDashboard = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Delete this product?")) {
             try {
-                const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-                await axios.delete(`${BASE_URL}/api/products/${id}`, config);
+                await deleteProduct(id, userInfo.token);
                 setRefresh(!refresh);
             } catch (error) {
                 alert("Delete Failed");
@@ -137,8 +132,7 @@ const SellerDashboard = () => {
 
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
-            const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-            await axios.put(`${BASE_URL}/api/orders/${orderId}/status`, { status: newStatus }, config);
+            await updateOrderStatus(orderId, newStatus, userInfo.token);
             const updatedOrders = orders.map(order =>
                 order._id === orderId ? { ...order, status: newStatus } : order
             );

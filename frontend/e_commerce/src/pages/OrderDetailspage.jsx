@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
 import { useSelector } from "react-redux";
+import { getOrderById } from "../services/orderService";
+import { BASE_URL } from "../services/api";
 import { Loader, CheckCircle, MapPin, CreditCard, Package, AlertCircle, ImageOff } from "lucide-react";
 
 const OrderDetailsPage = () => {
@@ -17,10 +18,7 @@ const OrderDetailsPage = () => {
             if (!userInfo) return;
 
             try {
-                const config = {
-                    headers: { Authorization: `Bearer ${userInfo.token}` },
-                };
-                const { data } = await axios.get(`http://localhost:5000/api/orders/${id}`, config);
+                const data = await getOrderById(id, userInfo.token);
                 setOrder(data);
                 setLoading(false);
             } catch (err) {
@@ -95,7 +93,7 @@ const OrderDetailsPage = () => {
                                 const quantity = item.quantity;
                                 // Image Logic: Check if valid image exists
                                 const hasImage = product.images && product.images.length > 0;
-                                const imageUrl = hasImage ? `http://localhost:5000${product.images[0]}` : null;
+                                const imageUrl = hasImage ? `${BASE_URL}${product.images[0]}` : null;
 
                                 return (
                                     <div key={index} className="flex items-center py-4">

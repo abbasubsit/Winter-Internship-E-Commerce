@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import axios from 'axios';
+import { registerUser } from '../services/authService';
 import { setCredentials } from '../redux/authSlice';
 import sellerHero from '../assets/seller_hero.png';
 import { CheckCircle, User, Mail, CreditCard, Upload } from 'lucide-react';
@@ -18,13 +18,8 @@ const SellerLandingPage = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:5000/api/auth/register", {
-                name,
-                email,
-                password,
-                role: "seller"
-            });
-            dispatch(setCredentials({ ...res.data }));
+            const data = await registerUser({ name, email, password, role: "seller" });
+            dispatch(setCredentials({ ...data }));
             navigate("/seller/dashboard");
         } catch (err) {
             setError(err.response?.data?.message || "Registration Failed");

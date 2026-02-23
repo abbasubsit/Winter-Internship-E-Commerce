@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-// Redux imports (Uncomment in your local project)
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
+import { getTrendingProducts, getAllProducts } from '../services/productService';
+import { BASE_URL } from '../services/api';
 
 // --- INTERNAL COMPONENT: CategoryTabs ---
 const categories = [
@@ -32,13 +32,13 @@ const CategoryTabs = ({ activeCategory, onCategoryChange }) => {
 
 // --- INTERNAL COMPONENT: TrendingProductCard ---
 const TrendingProductCard = ({ product }) => {
-     const dispatch = useDispatch(); // Uncomment for Redux
+    const dispatch = useDispatch(); // Uncomment for Redux
 
     if (!product) return null;
 
     // Database vs Local Image logic
     const imageSrc = product.images && product.images.length > 0
-        ? `http://localhost:5000${product.images[0]}`
+        ? `${BASE_URL}${product.images[0]}`
         : 'https://via.placeholder.com/300';
 
     const handleAddToCart = (e) => {
@@ -113,20 +113,15 @@ const TrendingSection = () => {
                 let dataToDisplay = [];
 
                 if (activeCategory === 'All') {
-                    // Logic: Agar All hai, to 8 Random products mangwao
-                    const { data } = await axios.get('http://localhost:5000/api/products/trending');
-                    dataToDisplay = data;
+                    dataToDisplay = await getTrendingProducts();
                 } else {
-                    // Logic: Agar Category select hai, to SARE products mangwao
-                    const { data } = await axios.get('http://localhost:5000/api/products');
+                    const allProducts = await getAllProducts();
 
-                    // Frontend par filter karo
-                    const filtered = data.filter(p =>
+                    const filtered = allProducts.filter(p =>
                         (p.category?.name && p.category.name.includes(activeCategory)) ||
                         (p.title && p.title.includes(activeCategory))
                     );
 
-                    // Sirf pehle 8 dikhao (slice)
                     dataToDisplay = filtered.slice(0, 8);
                 }
 

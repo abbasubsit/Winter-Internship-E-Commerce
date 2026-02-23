@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import axios from "axios";
+import { registerUser } from "../services/authService";
 import { setCredentials } from "../redux/authSlice";
 
 const RegisterPage = () => {
@@ -29,14 +29,9 @@ const RegisterPage = () => {
         const role = searchParams.get("role") || "customer";
 
         try {
-            const res = await axios.post("http://localhost:5000/api/auth/register", {
-                name,
-                email,
-                password,
-                role: role // ✅ Use Dynamic Role
-            });
+            const data = await registerUser({ name, email, password, role });
 
-            dispatch(setCredentials({ ...res.data }));
+            dispatch(setCredentials({ ...data }));
 
             // Redirect based on Role
             if (role === 'seller') {

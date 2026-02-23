@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { getAllProducts } from "../services/productService";
 import CartCarousel from "../HomeSectionCarosel/CartCarousel";
 
 const HomePage = () => {
@@ -10,7 +10,7 @@ const HomePage = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const { data } = await axios.get("http://localhost:5000/api/products");
+                const data = await getAllProducts();
                 setProducts(data);
                 setLoading(false);
             } catch (err) {

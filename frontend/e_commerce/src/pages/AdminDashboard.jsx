@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { logout } from "../redux/authSlice";
+import { BASE_URL } from "../services/api";
+import { getAllUsers, deleteUser, verifySeller, deleteProductAdmin } from "../services/adminService";
+import { getAllOrders } from "../services/adminService";
+import { getAllProducts } from "../services/productService";
+import { getAllCategories } from "../services/categoryService";
 
 // Extracted Components
 import AdminSidebar from "../components/admin/AdminSidebar";
@@ -11,8 +15,6 @@ import AdminOverview from "../components/admin/AdminOverview";
 import AdminUsersList from "../components/admin/AdminUsersList";
 import AdminOrdersList from "../components/admin/AdminOrdersList";
 import AdminProductsList from "../components/admin/AdminProductsList";
-
-const BASE_URL = "http://localhost:5000";
 
 const AdminDashboard = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -56,19 +58,18 @@ const AdminDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
             setLoading(true);
 
-            const { data: usersData } = await axios.get(`${BASE_URL}/api/admin/users`, config);
+            const usersData = await getAllUsers(userInfo.token);
             setUsers(usersData);
 
-            const { data: ordersData } = await axios.get(`${BASE_URL}/api/admin/orders`, config);
+            const ordersData = await getAllOrders(userInfo.token);
             setOrders(ordersData);
 
-            const { data: productsData } = await axios.get(`${BASE_URL}/api/products`);
+            const productsData = await getAllProducts();
             setProducts(productsData);
 
-            const { data: catData } = await axios.get(`${BASE_URL}/api/categories`);
+            const catData = await getAllCategories();
             setCategories(catData);
 
             setStats({
@@ -89,8 +90,7 @@ const AdminDashboard = () => {
     const handleDeleteUser = async (id) => {
         if (window.confirm("Are you sure? This will delete the user and their data.")) {
             try {
-                const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-                await axios.delete(`${BASE_URL}/api/admin/users/${id}`, config);
+                await deleteUser(id, userInfo.token);
                 fetchData();
             } catch (error) {
                 alert("Failed to delete user");
@@ -101,8 +101,7 @@ const AdminDashboard = () => {
     const handleVerifySeller = async (id, name) => {
         if (window.confirm(`Approve ${name} as a Seller?`)) {
             try {
-                const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-                await axios.put(`${BASE_URL}/api/admin/users/${id}/verify`, {}, config);
+                await verifySeller(id, userInfo.token);
                 fetchData();
             } catch (error) {
                 alert("Failed to verify seller");
@@ -113,8 +112,7 @@ const AdminDashboard = () => {
     const handleDeleteProduct = async (id) => {
         if (window.confirm("Delete this product globally?")) {
             try {
-                const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-                await axios.delete(`${BASE_URL}/api/admin/products/${id}`, config);
+                await deleteProductAdmin(id, userInfo.token);
                 fetchData();
             } catch (error) {
                 alert("Failed to delete product");

@@ -1,27 +1,22 @@
 import { Link } from "react-router-dom";
 import { ShoppingCart, Heart, Eye, Star } from "lucide-react";
-
-// Note: Asal project mein niche wali 2 lines uncomment karein (Redux ke liye)
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
+import { BASE_URL } from "../services/api";
 
 const ProductCard = ({ product }) => {
     const dispatch = useDispatch();
 
-    // Safety Check
     if (!product) return null;
 
     const addToCartHandler = (e) => {
-        e.preventDefault(); // Click event ko parent Link tak jane se roko
-        // Asal project mein yeh use karein:
+        e.preventDefault();
         dispatch(addToCart({ ...product, qty: 1 }));
-        alert("Added to Cart! (Uncomment Redux logic in real app)");
+        alert("Added to Cart!");
     };
 
     const price = product.price || 0;
-    // const fakeOriginalPrice = (price * 1.2).toFixed(2); // Old logic
-    // New logic: If backend provides discountedPrice, use that. Otherwise fake it for demo.
-    const originalPrice = product.price * 1.5; // Example: Showing a higher original price for demo
+    const originalPrice = product.price * 1.5;
     const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
 
 
@@ -32,7 +27,7 @@ const ProductCard = ({ product }) => {
             <div className="relative aspect-[3/4] w-full bg-gray-100 overflow-hidden">
                 <Link to={`/product/${product._id}`} className="block w-full h-full">
                     <img
-                        src={product.images && product.images[0] ? `http://localhost:5000${product.images[0]}` : "https://via.placeholder.com/300"}
+                        src={product.images && product.images[0] ? `${BASE_URL}${product.images[0]}` : "https://via.placeholder.com/300"}
                         alt={product.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />

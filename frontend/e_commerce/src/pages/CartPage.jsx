@@ -2,11 +2,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Trash2, Minus, Plus, ArrowRight } from "lucide-react";
 import { removeFromCart, decreaseQty, increaseQty } from "../redux/cartSlice";
+import { BASE_URL } from "../services/api";
 
 const CartPage = () => {
-    // 1. Redux se User Info bhi nikalo (Login status check karne ke liye)
     const { cartItems } = useSelector((state) => state.cart);
-    const { userInfo } = useSelector((state) => state.auth); // ✅ Added this
+    const { userInfo } = useSelector((state) => state.auth);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -15,13 +15,10 @@ const CartPage = () => {
     const shipping = total > 200 ? 0 : 15;
     const finalTotal = total + shipping;
 
-    // ✅ FIXED: Smart Checkout Handler
     const checkoutHandler = () => {
         if (userInfo) {
-            // Agar user pehle se logged in hai, to seedha Shipping page par jao
             navigate('/shipping');
         } else {
-            // Agar login nahi hai, to Login page par bhejo
             navigate('/login?redirect=shipping');
         }
     }
@@ -55,7 +52,7 @@ const CartPage = () => {
                                 {/* Product Image */}
                                 <div className="w-32 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden relative">
                                     <img
-                                        src={item.images && item.images[0] ? `http://localhost:5000${item.images[0]}` : "https://via.placeholder.com/150"}
+                                        src={item.images && item.images[0] ? `${BASE_URL}${item.images[0]}` : "https://via.placeholder.com/150"}
                                         alt={item.title}
                                         className="w-full h-full object-cover mix-blend-multiply"
                                         onError={(e) => { e.target.src = "https://via.placeholder.com/150"; }}
@@ -99,8 +96,8 @@ const CartPage = () => {
                                                 <button
                                                     onClick={() => handleIncreaseQty(item)}
                                                     className={`w-8 h-8 flex items-center justify-center rounded-full transition ${item.stock && item.qty >= item.stock
-                                                            ? "text-gray-300 cursor-not-allowed"
-                                                            : "text-gray-600 hover:text-black hover:bg-gray-100"
+                                                        ? "text-gray-300 cursor-not-allowed"
+                                                        : "text-gray-600 hover:text-black hover:bg-gray-100"
                                                         }`}
                                                     disabled={item.stock && item.qty >= item.stock}
                                                 >

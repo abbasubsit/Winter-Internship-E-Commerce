@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { loginUser } from "../services/authService";
+import { getUserCart } from "../services/cartService";
 import { setCredentials } from "../redux/authSlice";
-import { setCart } from "../redux/cartSlice"; // ✅ Import
+import { setCart } from "../redux/cartSlice";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -17,22 +18,14 @@ const LoginPage = () => {
         e.preventDefault();
         try {
             // 1. Login API Call
-            const res = await axios.post("http://localhost:5000/api/auth/login", {
-                email,
-                password,
-            });
+            const data = await loginUser({ email, password });
 
             // 2. Save User Info
-            dispatch(setCredentials({ ...res.data }));
+            dispatch(setCredentials({ ...data }));
 
-            // 3. ✅ FETCH USER'S CART FROM DB
+            // 3. Fetch user's cart from DB
             try {
-                const config = {
-                    headers: { Authorization: `Bearer ${res.data.token}` }
-                };
-                const { data: cartData } = await axios.get("http://localhost:5000/api/users/cart", config);
-
-                // Agar DB mein cart hai, to Redux update karo
+                const cartData = await getUserCart(data.token);
                 if (cartData && cartData.length > 0) {
                     dispatch(setCart(cartData));
                 }
@@ -40,9 +33,9 @@ const LoginPage = () => {
                 console.log("Cart fetch failed (New user maybe):", cartError);
             }
 
-            if (res.data.role === 'admin') {
+            if (data.role === 'admin') {
                 navigate("/admin/dashboard");
-            } else if (res.data.role === 'seller') {
+            } else if (data.role === 'seller') {
                 navigate("/seller/dashboard");
             } else {
                 navigate("/");

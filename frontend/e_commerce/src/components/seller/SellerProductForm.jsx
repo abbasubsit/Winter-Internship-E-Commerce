@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { ArrowLeft } from "lucide-react";
-
-const BASE_URL = "http://localhost:5000";
+import { uploadImage } from "../../services/uploadService";
+import { createProduct, updateProduct } from "../../services/productService";
+import { BASE_URL } from "../../services/api";
 
 const SellerProductForm = ({ userInfo, editingProduct, setActiveTab, setRefresh, refresh, categories, getImageUrl }) => {
     const [formData, setFormData] = useState({
@@ -36,8 +36,7 @@ const SellerProductForm = ({ userInfo, editingProduct, setActiveTab, setRefresh,
         fd.append("image", file);
         setUploading(true);
         try {
-            const config = { headers: { "Content-Type": "multipart/form-data" } };
-            const { data } = await axios.post(`${BASE_URL}/api/upload`, fd, config);
+            const data = await uploadImage(fd, userInfo.token);
             setFormData({ ...formData, image: data.image });
             setUploading(false);
         } catch (error) {
@@ -55,14 +54,13 @@ const SellerProductForm = ({ userInfo, editingProduct, setActiveTab, setRefresh,
         }
 
         try {
-            const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
             const payload = { ...formData, images: [formData.image] };
 
             if (editingProduct) {
-                await axios.put(`${BASE_URL}/api/products/${editingProduct._id}`, payload, config);
+                await updateProduct(editingProduct._id, payload, userInfo.token);
                 alert("Product Updated Successfully");
             } else {
-                await axios.post(`${BASE_URL}/api/products`, payload, config);
+                await createProduct(payload, userInfo.token);
                 alert("Product Created Successfully");
             }
             setRefresh(!refresh);

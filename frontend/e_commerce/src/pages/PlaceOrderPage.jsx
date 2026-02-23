@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "../redux/cartSlice";
-import axios from "axios";
+import { createOrder } from "../services/orderService";
+import { syncCart } from "../services/cartService";
+import { BASE_URL } from "../services/api";
 
 const PlaceOrderPage = () => {
     const dispatch = useDispatch();
@@ -26,12 +28,6 @@ const PlaceOrderPage = () => {
 
     const placeOrderHandler = async () => {
         try {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
-            };
-
             const orderData = {
                 orderItems: cart.cartItems,
                 shippingAddress: cart.shippingAddress,
@@ -42,16 +38,12 @@ const PlaceOrderPage = () => {
                 totalAmount,
             };
 
-            // API Call to Backend
-            // NOTE: Make sure your backend orderController accepts these fields!
-            await axios.post("http://localhost:5000/api/orders", orderData, config);
-
-            // ✅ FIX: Clear Backend Cart explicitly
-            await axios.put("http://localhost:5000/api/users/cart", { cartItems: [] }, config);
+            await createOrder(orderData, userInfo.token);
+            await syncCart([], userInfo.token);
 
             alert("Order Placed Successfully!");
             dispatch(clearCart());
-            navigate("/"); // Redirect to Home or Order History
+            navigate("/");
         } catch (error) {
             alert(error.response?.data?.message || error.message);
         }
@@ -84,7 +76,7 @@ const PlaceOrderPage = () => {
                             <div className="divide-y divide-gray-200">
                                 {cart.cartItems.map((item, index) => (
                                     <div key={index} className="flex items-center py-4">
-                                        <img src={`http://localhost:5000${item.images[0]}`} alt={item.title} className="w-16 h-16 object-cover rounded mr-4" />
+                                        <img src={`${BASE_URL}${item.images[0]}`} alt={item.title} className="w-16 h-16 object-cover rounded mr-4" />
                                         <Link to={`/product/${item._id}`} className="flex-1 font-medium text-[#111111] hover:underline">
                                             {item.title}
                                         </Link>

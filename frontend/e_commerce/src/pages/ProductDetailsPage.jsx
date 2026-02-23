@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // useNavigate add kiya
-import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { getProductById } from "../services/productService";
+import { BASE_URL } from "../services/api";
 import { Star, Minus, Plus, ChevronDown, ChevronUp, ShoppingBag, Heart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
@@ -26,7 +27,7 @@ const ProductDetailsPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
+                const data = await getProductById(id);
                 setProduct(data);
                 if (data.images && data.images.length > 0) {
                     setActiveImage(data.images[0]);
@@ -86,7 +87,7 @@ const ProductDetailsPage = () => {
 
     const imageSrc = (img) => {
         if (!img) return "https://via.placeholder.com/600";
-        return img.startsWith("http") ? img : `http://localhost:5000${img}`;
+        return img.startsWith("http") ? img : `${BASE_URL}${img}`;
     };
 
     // ... (Baaki Return UI Same Rahega)
@@ -150,8 +151,8 @@ const ProductDetailsPage = () => {
                                             onClick={() => setSelectedSize(s.name)}
                                             disabled={s.quantity === 0}
                                             className={`py-3 rounded-md border text-sm font-medium transition-all ${selectedSize === s.name
-                                                    ? "border-black bg-black text-white"
-                                                    : "border-gray-200 text-[#111111] hover:border-black"
+                                                ? "border-black bg-black text-white"
+                                                : "border-gray-200 text-[#111111] hover:border-black"
                                                 } ${s.quantity === 0 ? "opacity-50 cursor-not-allowed bg-gray-100" : ""}`}
                                         >
                                             {s.name}

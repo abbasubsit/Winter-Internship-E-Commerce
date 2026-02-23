@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-// Path wahi rakha hai jo aapne Home page mein use kiya tha
+import { getAllProducts } from "../services/productService";
 import CartCarousel from "../HomeSectionCarosel/CartCarousel";
 
 const WomenProduct = () => {
@@ -11,8 +10,7 @@ const WomenProduct = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                // Backend se saare products fetch kar rahe hain
-                const { data } = await axios.get("http://localhost:5000/api/products");
+                const data = await getAllProducts();
                 setProducts(data);
                 setLoading(false);
             } catch (err) {
