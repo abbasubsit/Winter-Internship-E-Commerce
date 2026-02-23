@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { setCredentials } from "../redux/authSlice";
 import { setCart } from "../redux/cartSlice"; // ✅ Import
@@ -67,8 +67,18 @@ const LoginPage = () => {
                         <label className="block text-gray-700 mb-2">Password</label>
                         <input type="password" className="w-full p-2 border rounded" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                     </div>
+                    <div className="text-right mb-4">
+                        <Link to="/forgot-password" className="text-blue-600 hover:underline text-sm">
+                            Forgot Password?
+                        </Link>
+                    </div>
                     <button type="submit" className="w-full bg-gray-900 text-white py-2 rounded hover:bg-gray-800 transition font-bold">Login</button>
                 </form>
+
+                <p className="mt-4 text-center text-sm">
+                    Don't have an account?{" "}
+                    <Link to="/register" className="text-blue-600 hover:underline font-semibold">Sign Up</Link>
+                </p>
             </div>
         </div>
     );

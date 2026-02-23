@@ -1,4 +1,8 @@
-import { useLocation } from "react-router-dom"; // ✅ Import useLocation
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import axios from "axios";
+import { setCredentials } from "../redux/authSlice";
 
 const RegisterPage = () => {
 

@@ -23,13 +23,15 @@ import PlaceOrderPage from "./pages/PlaceOrderPage";
 import MyOrdersPage from "./pages/MyOrdersPage";
 import OrderDetailsPage from "./pages/OrderDetailspage";
 import SellerLandingPage from "./pages/SellerLandingPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 import MenProduct from "./pages/MenProduct";
 import WomenProduct from "./pages/WomenProduct";
 
 function App() {
   const location = useLocation();
-  const hideLayout = location.pathname === "/login" || location.pathname === "/register";
+  const hideLayout = location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/forgot-password" || location.pathname.startsWith("/reset-password");
 
   // ✅ AUTO-SAVE CART LOGIC
   const { cartItems } = useSelector((state) => state.cart);
@@ -80,6 +82,8 @@ function App() {
         <Route path="/trendingProducts" element={<TrendingSection />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route path="/seller-register" element={<SellerLandingPage />} />
         <Route path="/cart" element={<CartPage />} />
 

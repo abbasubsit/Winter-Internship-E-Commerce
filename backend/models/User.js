@@ -26,7 +26,10 @@ const userSchema = new mongoose.Schema({
             },
             _id: { type: String } // Frontend ID match karne ke liye
         }
-    ]
+    ],
+    // Forgot Password fields
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: Date }
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);
