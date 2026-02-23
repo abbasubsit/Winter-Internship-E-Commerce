@@ -59,20 +59,20 @@ const ProductDetailsPage = () => {
 
         // Check: user is missing, is Array (corrupted), or has no ID
         if (!userInfo || Array.isArray(userInfo) || !userInfo._id) {
-            alert("🔒 You need to Login first!");
+            alert("You need to Login first!");
             // Clear corrupted data if present
             if (userInfo) dispatch(logout());
             navigate("/login");
             return;
         }
 
-        // 2️⃣ Size Validation
+        // Size Validation
         if (product.size && product.size.length > 0 && !selectedSize) {
             alert("Please select a size");
             return;
         }
 
-        // 3️⃣ Stock Logic
+        // Stock Logic
         let availableStock = product.stock;
         if (selectedSize && product.size) {
             const sizeObj = product.size.find(s => s.name === selectedSize);
@@ -85,16 +85,16 @@ const ProductDetailsPage = () => {
         if (currentQtyInCart + quantity > availableStock) {
             const remainingAllowed = availableStock - currentQtyInCart;
             if (remainingAllowed <= 0) {
-                alert("❌ Out of Stock! No more items available.");
+                alert("Out of Stock! No more items available.");
             } else {
-                alert(`⚠️ Cannot add! You have ${currentQtyInCart} in cart. Only ${remainingAllowed} more available.`);
+                alert(`Cannot add! You have ${currentQtyInCart} in cart. Only ${remainingAllowed} more available.`);
             }
             return;
         }
 
-        // 4️⃣ Success
+        // Success
         dispatch(addToCart({ ...product, qty: quantity, selectedSize }));
-        alert("✅ Added to Cart Successfully!");
+        alert("Added to Cart Successfully!");
     };
 
     const toggleSection = (section) => {

@@ -7,19 +7,19 @@ dotenv.config();
 
 const createSeller = async () => {
     try {
-        console.log("🔌 Connecting to MongoDB...");
+        console.log("Connecting to MongoDB...");
         await mongoose.connect(process.env.MONGO_URI);
-        console.log("✅ Connected.");
+        console.log("Connected.");
 
         const sellerExists = await User.findOne({ email: 'seller@example.com' });
 
         if (sellerExists) {
-            console.log("ℹ️ Seller already exists.");
+            console.log("Seller already exists.");
             if (sellerExists.role !== 'seller') {
-                console.log("⚠️ User found but role is not seller. Updating role...");
+                console.log("User found but role is not seller. Updating role...");
                 sellerExists.role = 'seller';
                 await sellerExists.save();
-                console.log("✅ Role updated to seller.");
+                console.log("Role updated to seller.");
             }
         } else {
             console.log("Creating new seller...");
@@ -30,16 +30,16 @@ const createSeller = async () => {
                 name: 'Default Seller',
                 email: 'seller@example.com',
                 password: hashedPassword,
-                role: 'seller' // crucial for seeder
+                role: 'seller'
             });
-            console.log(`✅ Seller created: ${seller.email} / 123456`);
+            console.log(`Seller created: ${seller.email} / 123456`);
         }
 
     } catch (error) {
-        console.error("❌ Error:", error);
+        console.error("Error:", error);
     } finally {
         await mongoose.disconnect();
-        console.log("👋 Disconnected.");
+        console.log("Disconnected.");
     }
 };
 

@@ -58,7 +58,7 @@ const ResetPasswordPage = () => {
                 {/* Success Message */}
                 {message && (
                     <div className="bg-green-100 text-green-700 p-3 rounded mb-4 text-center">
-                        ✅ {message}
+                        {message}
                         <p className="text-sm mt-1">Redirecting to login...</p>
                     </div>
                 )}
