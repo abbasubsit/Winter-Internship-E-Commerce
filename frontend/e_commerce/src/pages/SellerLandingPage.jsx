@@ -108,7 +108,7 @@ const SellerLandingPage = () => {
                         {/* Left: Description & CTA */}
                         <div className="space-y-8">
                             <p className="text-lg text-gray-600 leading-relaxed">
-                                Sign up now to be a Daraz Seller! Daraz offers good opportunity and support for you to dive into the market and grow your customer base with ease. As a Daraz Seller, you will get access to various resources to help you drive your business on our platform.
+                                Sign up now to be a SMV-ECOM Seller! SMV-ECOM offers good opportunity and support for you to dive into the market and grow your customer base with ease. As a SMV-ECOM Seller, you will get access to various resources to help you drive your business on our platform.
                             </p>
                         </div>
 
