@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { registerUser } from '../services/authService';
 import { setCredentials } from '../redux/authSlice';
-import sellerHero from '../assets/seller_hero.png';
+// import sellerHero from '../assets/seller_hero.png';
 import { CheckCircle, User, Mail, CreditCard, Upload } from 'lucide-react';
 
 const SellerLandingPage = () => {

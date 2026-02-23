@@ -17,12 +17,31 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Database Connection
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected Successfully'))
-    .catch((err) => console.log('MongoDB Connection Error:', err));
+// Database Connection (cached for serverless)
+let isConnected = false;
+const connectDB = async () => {
+    if (isConnected) return;
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+        isConnected = true;
+        console.log('MongoDB Connected Successfully');
+    } catch (err) {
+        console.log('MongoDB Connection Error:', err);
+        throw err;
+    }
+};
 
-// 2. Use Routes Here
+// Ensure DB is connected before every request
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        res.status(500).json({ message: 'Database connection failed' });
+    }
+});
+
+// Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
@@ -30,7 +49,6 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
-
 
 // Serve uploaded files as static assets
 const dirname = path.resolve();
