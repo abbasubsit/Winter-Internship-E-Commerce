@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-// 1️⃣ Check if User is Logged In
+// Verify user authentication via JWT token
 export const protect = async (req, res, next) => {
     let token;
 
@@ -28,7 +28,7 @@ export const protect = async (req, res, next) => {
     return res.status(401).json({ message: 'Not authorized, no token' });
 };
 
-// 2️⃣ Check if User is Seller
+// Check if user has seller or admin role
 export const seller = (req, res, next) => {
     if (req.user && (req.user.role === 'seller' || req.user.role === 'admin')) {
         return next();
@@ -37,7 +37,7 @@ export const seller = (req, res, next) => {
     return res.status(401).json({ message: 'Not authorized as a seller' });
 };
 
-// 3️⃣ Check if User is Admin
+// Check if user has admin role
 export const admin = (req, res, next) => {
     if (req.user && req.user.role === 'admin') {
         return next();

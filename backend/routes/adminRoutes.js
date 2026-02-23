@@ -19,7 +19,7 @@ router.get('/sellers', getAllSellers);
 router.get('/orders', getAllOrders);
 
 router.delete('/users/:id', deleteUser);
-router.put('/users/:id/verify', verifySeller); // ✅ Verify Seller Route
+router.put('/users/:id/verify', verifySeller);
 router.delete('/products/:id', deleteProductAdmin);
 
 export default router;

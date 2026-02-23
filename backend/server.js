@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import path from 'path'; // Top par add karo
+import path from 'path';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
@@ -9,7 +9,7 @@ import productRoutes from './routes/productRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
-import adminRoutes from './routes/adminRoutes.js'; // ✅ Import Admin Routes
+import adminRoutes from './routes/adminRoutes.js';
 
 const app = express();
 
@@ -29,11 +29,10 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/admin', adminRoutes); // ✅ Mount Admin Routes
+app.use('/api/admin', adminRoutes);
 
 
-// ... (Make uploads folder static)
-// Yeh line sabse important hai 👇
+// Serve uploaded files as static assets
 const dirname = path.resolve();
 app.use('/uploads', express.static(path.join(dirname, '/uploads')));
 

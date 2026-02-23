@@ -15,6 +15,14 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'Please fill all fields' });
         }
 
+        // Password strength validation
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+        if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain both letters and numbers' });
+        }
+
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
@@ -148,8 +156,18 @@ export const resetPassword = async (req, res) => {
         }
 
         // Hash new password and save
+        const { password } = req.body;
+
+        // Password strength validation
+        if (!password || password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+        if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain both letters and numbers' });
+        }
+
         const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(req.body.password, salt);
+        user.password = await bcrypt.hash(password, salt);
 
         // Clear reset token fields
         user.resetPasswordToken = undefined;

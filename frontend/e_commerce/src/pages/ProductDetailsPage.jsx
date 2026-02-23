@@ -11,7 +11,7 @@ const ProductDetailsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate(); // Navigation hook
 
-    // 1. User Info nikalo
+    // 1. Get user info from Redux store
     const { userInfo } = useSelector((state) => state.auth);
     const { cartItems } = useSelector((state) => state.cart);
 
@@ -90,8 +90,7 @@ const ProductDetailsPage = () => {
         return img.startsWith("http") ? img : `${BASE_URL}${img}`;
     };
 
-    // ... (Baaki Return UI Same Rahega)
-    // ... (Poora code wahi hai jo pichle step mein tha, bas handleAddToCart update hua hai)
+    // Return UI
 
     return (
         <div className="bg-white min-h-screen py-12">

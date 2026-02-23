@@ -30,6 +30,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 import MenProduct from "./pages/MenProduct";
 import WomenProduct from "./pages/WomenProduct";
+import ShopPage from "./pages/ShopPage";
 
 function App() {
   const location = useLocation();
@@ -66,6 +67,7 @@ function App() {
       <Routes>
         {/* --- PUBLIC ROUTES --- */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/shop" element={<ShopPage />} />
         <Route path="/menProducts" element={<MenProduct />} />
         <Route path="/womenProducts" element={<WomenProduct />} />
         <Route path="/trendingProducts" element={<TrendingSection />} />

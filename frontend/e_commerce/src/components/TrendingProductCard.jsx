@@ -23,13 +23,12 @@ const ProductDetailsPage = () => {
     const [activeImage, setActiveImage] = useState("");
     const [openSection, setOpenSection] = useState("description");
 
-    // 🔥 SELF-HEALING EFFECT: Bad Data Detector
-    // Yeh check karega ke agar userInfo "Array" hai (jo ke ghalat hai), to foran logout kar dega.
+    // Self-healing: detect corrupted userInfo (e.g. Array instead of object) and force logout
     useEffect(() => {
         if (userInfo && Array.isArray(userInfo)) {
-            console.warn("⚠️ Corrupted Data Detected! Force Logging out...");
-            dispatch(logout()); // Data saaf karo
-            navigate("/login"); // Login pe bhejo
+            console.warn("Corrupted Data Detected! Force Logging out...");
+            dispatch(logout());
+            navigate("/login");
         }
     }, [userInfo, dispatch, navigate]);
 
@@ -58,11 +57,10 @@ const ProductDetailsPage = () => {
     // --- ADD TO CART HANDLER ---
     const handleAddToCart = () => {
 
-        // 1️⃣ ROBUST LOGIN CHECK
-        // Check: Agar user nahi hai OR user Array hai OR user ke paas ID nahi hai
+        // Check: user is missing, is Array (corrupted), or has no ID
         if (!userInfo || Array.isArray(userInfo) || !userInfo._id) {
             alert("🔒 You need to Login first!");
-            // Agar ghalat data hai to saaf bhi kar do
+            // Clear corrupted data if present
             if (userInfo) dispatch(logout());
             navigate("/login");
             return;

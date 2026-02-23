@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, LogOut, Store, ChevronDown, Bell } from "lucide-react";
+import { ShoppingCart, User, LogOut, Store, ChevronDown, Bell, Search } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllUsers } from "../services/adminService";
 import { logout } from "../redux/authSlice";
@@ -16,11 +16,24 @@ const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
+    // Search State
+    const [searchTerm, setSearchTerm] = useState("");
+
     // Admin Notification Logic
     const [pendingSellers, setPendingSellers] = useState(0);
 
     // Total Items Count
     const totalItems = cartItems.reduce((acc, item) => acc + (item.qty || 1), 0);
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchTerm.trim()) {
+            navigate(`/shop?keyword=${encodeURIComponent(searchTerm.trim())}`);
+            setSearchTerm("");
+        } else {
+            navigate("/shop");
+        }
+    };
 
     useEffect(() => {
         if (userInfo && userInfo.role === 'admin') {
@@ -41,7 +54,7 @@ const Navbar = () => {
         dispatch(logout());
         dispatch(clearCart());
         setIsDropdownOpen(false);
-        navigate("/"); // ✅ Redirect to Home
+        navigate("/");
     };
 
     // Close dropdown if clicked outside
@@ -67,26 +80,21 @@ const Navbar = () => {
                     {userInfo?.role === 'seller' && <span className="text-xs text-gray-400 ml-2 font-normal">(Seller Panel)</span>}
                 </Link>
 
-                {/* 2. Navigation Links (Yahan Changes kiye hain) */}
+                {/* 2. Navigation Links */}
                 <div className="hidden md:flex items-center space-x-8 ml-12">
 
                     {userInfo && userInfo.role === 'seller' ? (
-                        // --- SELLER TABS (Agar Seller login hai) ---
                         <>
                             <Link to="/seller/dashboard" className="hover:text-black transition font-medium text-sm text-gray-600">Dashboard</Link>
                             <Link to="/seller/products" className="hover:text-black transition font-medium text-sm text-gray-600">My Products</Link>
                             <Link to="/seller/orders" className="hover:text-black transition font-medium text-sm text-gray-600">Orders</Link>
-                            {/* Add Product ko thoda highlight kiya hai */}
                             <Link to="/seller/dashboard?tab=add_product" className="text-white bg-black px-4 py-2 rounded hover:bg-gray-800 transition font-bold text-sm">
                                 + Add Product
                             </Link>
                         </>
                     ) : userInfo && userInfo.role === 'admin' ? (
-                        // --- ADMIN TABS (Agar Admin login hai) ---
                         <>
                             <Link to="/admin/dashboard" className="hover:text-black transition font-medium text-sm text-gray-600">Admin Dashboard</Link>
-
-                            {/* Notification Icon for Admin */}
                             <Link to="/admin/dashboard?tab=users" className="relative group">
                                 <Bell size={20} className="text-gray-600 group-hover:text-black transition" />
                                 {pendingSellers > 0 && (
@@ -98,16 +106,31 @@ const Navbar = () => {
                             </Link>
                         </>
                     ) : (
-                        // --- CUSTOMER TABS (Purana Design) ---
                         <>
                             <Link to="/" className="hover:text-black transition font-medium text-sm text-gray-600">Home</Link>
+                            <Link to="/shop" className="hover:text-black transition font-medium text-sm text-gray-600">Shop</Link>
                             <Link to="/menProducts" className="hover:text-black transition font-medium text-sm text-gray-600">Men</Link>
                             <Link to="/womenProducts" className="hover:text-black transition font-medium text-sm text-gray-600">Women</Link>
-                            <Link to="/electronicProducts" className="hover:text-black transition font-medium text-sm text-gray-600">Electronics</Link>
                             <Link to="/trendingProducts" className="hover:text-black transition font-medium text-sm text-gray-600">Trending</Link>
                         </>
                     )}
                 </div>
+
+                {/* 3. Search Bar (Customer only) */}
+                {(!userInfo || userInfo.role === 'customer') && (
+                    <form onSubmit={handleSearch} className="hidden md:flex items-center ml-auto mr-4">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Search products..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-48 lg:w-64 pl-9 pr-3 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black/10 focus:w-72 transition-all"
+                            />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        </div>
+                    </form>
+                )}
 
                 {/* 3. Right Side Icons */}
                 <div className="flex items-center space-x-6 ml-auto">

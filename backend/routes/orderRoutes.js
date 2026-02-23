@@ -4,20 +4,19 @@ import { protect, seller } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Order create karna
+// Create a new order
 router.route('/').post(protect, addOrderItems);
 
-// Apne orders dekhna
+// Get logged-in user's orders
 router.route('/myorders').get(protect, getMyOrders);
 
-// ✅ NEW ROUTE FOR SELLER
-// Isme 'seller' middleware zaroor lagayein taaki sirf seller access kare
+// Get seller's orders (seller middleware ensures only sellers can access)
 router.route('/sellerorders').get(protect, seller, getSellerOrders);
 
-// ✅ NEW: Status Update Route
+// Update order status (Seller only)
 router.route('/:id/status').put(protect, seller, updateOrderStatus);
 
-// ✅ NEW: Order by ID (Hamesha end mein rakhein taaki /myorders ya /sellerorders se match na hojaye agar galat regex ho)
+// Get order by ID (must be last to avoid matching named routes above)
 router.route('/:id').get(protect, getOrderById);
 
 export default router;

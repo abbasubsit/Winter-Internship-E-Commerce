@@ -136,7 +136,7 @@ const AdminDashboard = () => {
                 {loading ? <div className="flex justify-center mt-20"><Loader className="animate-spin text-gray-700" /></div> : (
                     <>
                         <h1 className="text-2xl font-bold mb-6 text-gray-800 capitalize">{activeTab.replace('_', ' ')}</h1>
-                        {activeTab === 'overview' && <AdminOverview stats={stats} />}
+                        {activeTab === 'overview' && <AdminOverview stats={stats} orders={orders} users={users} products={products} />}
                         {activeTab === 'users' && (
                             <AdminUsersList
                                 users={users}

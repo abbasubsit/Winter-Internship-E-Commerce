@@ -27,6 +27,11 @@ const ResetPasswordPage = () => {
             return;
         }
 
+        if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+            setError("Password must contain both letters and numbers");
+            return;
+        }
+
         setLoading(true);
 
         try {

@@ -44,3 +44,17 @@ export const deleteProduct = async (id, token) => {
     const { data } = await API.delete(`/api/products/${id}`, authConfig(token));
     return data;
 };
+
+// Search & filter products (Public)
+export const searchProducts = async (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.keyword) query.append("keyword", params.keyword);
+    if (params.category) query.append("category", params.category);
+    if (params.minPrice) query.append("minPrice", params.minPrice);
+    if (params.maxPrice) query.append("maxPrice", params.maxPrice);
+    if (params.brand) query.append("brand", params.brand);
+    if (params.color) query.append("color", params.color);
+    if (params.sort) query.append("sort", params.sort);
+    const { data } = await API.get(`/api/products/search?${query.toString()}`);
+    return data;
+};

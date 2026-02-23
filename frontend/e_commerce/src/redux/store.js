@@ -4,8 +4,8 @@ import cartReducer from "./cartSlice";
 
 const store = configureStore({
     reducer: {
-        auth: authReducer, // Humara auth logic yahan hai
-        cart: cartReducer, 
+        auth: authReducer,
+        cart: cartReducer,
     },
 });
 

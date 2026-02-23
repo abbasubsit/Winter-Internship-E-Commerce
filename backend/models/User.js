@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    //  NEW: Cart ko Database mein save karne ke liye
+    // Cart items stored in the database for persistence
     cartItems: [
         {
             title: { type: String },
@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product'
             },
-            _id: { type: String } // Frontend ID match karne ke liye
+            _id: { type: String } // Match frontend-generated ID
         }
     ],
     // Forgot Password fields

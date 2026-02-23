@@ -32,7 +32,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange }) => {
 
 // --- INTERNAL COMPONENT: TrendingProductCard ---
 const TrendingProductCard = ({ product }) => {
-    const dispatch = useDispatch(); // Uncomment for Redux
+    const dispatch = useDispatch();
 
     if (!product) return null;
 
@@ -43,7 +43,7 @@ const TrendingProductCard = ({ product }) => {
 
     const handleAddToCart = (e) => {
         e.preventDefault();
-        dispatch(addToCart({ ...product, qty: 1 })); // Uncomment for Redux
+        dispatch(addToCart({ ...product, qty: 1 }));
         alert("Added to Cart! (Enable Redux in local code)");
     };
 
@@ -134,7 +134,7 @@ const TrendingSection = () => {
         };
 
         fetchProducts();
-    }, [activeCategory]); // <-- Dependency array mein activeCategory hai
+    }, [activeCategory]);
 
     return (
         <section className="bg-white py-20 px-4 md:px-8 lg:px-16">

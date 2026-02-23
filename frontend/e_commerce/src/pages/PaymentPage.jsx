@@ -10,7 +10,7 @@ const PaymentPage = () => {
 
     const { shippingAddress } = useSelector((state) => state.cart);
 
-    // Agar shipping address nahi hai, toh wapis bhejo
+    // If no shipping address exists, redirect back to shipping
     if (!shippingAddress) {
         navigate("/shipping");
     }

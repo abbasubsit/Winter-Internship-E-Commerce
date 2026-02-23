@@ -6,7 +6,8 @@ import {
     getTrendingProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    searchProducts
 } from '../controllers/productController.js';
 
 import { protect, seller } from '../middleware/authMiddleware.js';
@@ -15,6 +16,9 @@ const router = express.Router();
 
 // Trending products route
 router.get('/trending', getTrendingProducts);
+
+// Search & filter products (must be before /:id)
+router.get('/search', searchProducts);
 
 // Public route to get all, Private to create
 router.route('/')

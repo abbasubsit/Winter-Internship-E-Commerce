@@ -30,7 +30,7 @@ const WomenProduct = () => {
     }, {});
 
     // 2. FILTER LOGIC FOR WOMEN
-    // Sirf wo categories rakhni hain jinke naam mein "women" aata ho.
+    // Filter for categories that contain "women" in the name
     const womenCategories = Object.entries(groupedProducts).filter(([categoryName, items]) => {
         return categoryName.toLowerCase().includes("women");
     });

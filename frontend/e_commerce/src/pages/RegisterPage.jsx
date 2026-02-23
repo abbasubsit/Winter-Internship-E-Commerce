@@ -14,17 +14,27 @@ const RegisterPage = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const location = useLocation(); // ✅ Get Location
+    const location = useLocation();
 
     const submitHandler = async (e) => {
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            setError("password not match");
-            return
+            setError("Passwords do not match");
+            return;
         }
 
-        // ✅ Get Role from URL (e.g., /register?role=seller)
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters");
+            return;
+        }
+
+        if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+            setError("Password must contain both letters and numbers");
+            return;
+        }
+
+        // Get role from URL query string (e.g., /register?role=seller)
         const searchParams = new URLSearchParams(location.search);
         const role = searchParams.get("role") || "customer";
 

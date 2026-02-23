@@ -1,5 +1,5 @@
 import Order from '../models/Order.js';
-import Product from '../models/Product.js'; // Product model import karna zaroori hai
+import Product from '../models/Product.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -13,7 +13,7 @@ const addOrderItems = async (req, res) => {
         }
 
         // 1. STOCK CHECK & UPDATE LOGIC (Critical Step)
-        // Hum har item ko check karenge ke stock hai ya nahi
+        // Check stock availability for each item
         for (const item of orderItems) {
             const product = await Product.findById(item._id);
 
@@ -21,19 +21,19 @@ const addOrderItems = async (req, res) => {
                 return res.status(404).json({ message: `Product not found: ${item.title}` });
             }
 
-            // Agar maangi gayi qty stock se zyada hai
+            // If requested quantity exceeds available stock
             if (product.stock < item.qty) {
                 return res.status(400).json({
                     message: `Out of Stock! ${product.title} only has ${product.stock} left.`
                 });
             }
 
-            // Stock Minus Karo
+            // Deduct stock
             product.stock = product.stock - item.qty;
-            await product.save(); // Database update
+            await product.save();
         }
 
-        // 2. Agar sab stock available hai, to Order Create karo
+        // 2. If all stock is available, create the order
         const order = new Order({
             customerId: req.user._id,
             items: orderItems.map((item) => ({
@@ -65,26 +65,24 @@ const getMyOrders = async (req, res) => {
     }
 };
 
-// ✅ NEW FUNCTION: Seller ke orders lane ke liye
+// Get orders that contain the seller's products
 // @desc    Get orders containing seller's products
 // @route   GET /api/orders/sellerorders
 // @access  Private (Seller)
 const getSellerOrders = async (req, res) => {
     try {
-        // 1. Pehle seller ke saare products dhoondo
-        // Note: Aapke product schema me 'sellerId' use hua hai ya 'user', wo check karlena. 
-        // Aapne jo schema bheja tha usme 'sellerId' tha.
+        // 1. Find all products belonging to this seller
         const products = await Product.find({ sellerId: req.user._id });
 
-        // Un products ki IDs nikalo
+        // Extract product IDs
         const productIds = products.map(p => p._id);
 
-        // 2. Ab wo orders dhoondo jisme inme se koi bhi product ho
+        // 2. Find orders containing any of these products
         const orders = await Order.find({
             'items.productId': { $in: productIds }
         })
-            .populate('customerId', 'name email') // Customer ka naam dekhne ke liye
-            .sort({ createdAt: -1 }); // Latest order pehle
+            .populate('customerId', 'name email')
+            .sort({ createdAt: -1 }); // Most recent first
 
         res.json(orders);
     } catch (error) {

@@ -14,7 +14,7 @@ const cartSlice = createSlice({
     name: "cart",
     initialState,
     reducers: {
-        // ✅ NEW ACTION: Database se cart set karne ke liye
+        // Set cart from database sync
         setCart: (state, action) => {
             state.cartItems = action.payload;
             localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
@@ -83,7 +83,7 @@ const cartSlice = createSlice({
 
 export const {
     addToCart, increaseQty, decreaseQty, removeFromCart, clearCart,
-    saveShippingAddress, savePaymentMethod, setCart // ✅ Export setCart
+    saveShippingAddress, savePaymentMethod, setCart
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

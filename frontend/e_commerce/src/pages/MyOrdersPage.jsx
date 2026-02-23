@@ -32,8 +32,7 @@ const MyOrdersPage = () => {
 
     // Status Badge Helper
     const getStatusBadge = (isDelivered, status) => {
-        // Agar backend me 'status' field string hai (like 'shipped') to wo check karo
-        // Warna purana boolean check (isDelivered)
+        // Check string-based 'status' field first, then fall back to boolean 'isDelivered'
         if (status === 'cancelled') return <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold flex items-center w-fit"><XCircle size={12} className="mr-1" /> Cancelled</span>;
         if (status === 'shipped') return <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold flex items-center w-fit"><Package size={12} className="mr-1" /> Shipped</span>;
         if (isDelivered || status === 'delivered') return <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold flex items-center w-fit"><CheckCircle size={12} className="mr-1" /> Delivered</span>;

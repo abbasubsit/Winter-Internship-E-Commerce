@@ -30,8 +30,7 @@ const MenProduct = () => {
     }, {});
 
     // 2. FILTER LOGIC FIXED
-    // Pehle sirf .includes("men") tha, jo "Women" ko bhi pakad raha tha.
-    // Ab hum check kar rahe hain ki "men" ho, lekin "women" NA ho.
+    // Filter for "men" categories while excluding "women" categories
     const menCategories = Object.entries(groupedProducts).filter(([categoryName, items]) => {
         const lowerName = categoryName.toLowerCase();
         return lowerName.includes("men") && !lowerName.includes("women");

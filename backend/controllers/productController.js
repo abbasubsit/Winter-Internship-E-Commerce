@@ -4,8 +4,7 @@ import Product from "../models/Product.js";
 // @route   GET /api/products
 const getProducts = async (req, res) => {
     try {
-        // ✅ FIX: .populate("category") zaroori hai.
-        // Iske bina Frontend ko category ka "name" nahi milega.
+        // Populate category so the frontend gets the category name
         const products = await Product.find({}).populate("category");
         res.json(products);
     } catch (error) {
@@ -18,8 +17,8 @@ const getProducts = async (req, res) => {
 // @route   GET /api/products/myproducts
 const getMyProducts = async (req, res) => {
     try {
-        // Seller ke liye bhi populate kar rahe hain taaki Dashboard me category name dikhe
-        // Hum 'sellerId' field use kar rahe hain jo aapke schema me hai
+        // Populate category for seller dashboard display
+        // Filter by 'sellerId' field from the schema
         const products = await Product.find({ sellerId: req.user._id }).populate("category");
         res.json(products);
     } catch (error) {
@@ -48,12 +47,12 @@ const createProduct = async (req, res) => {
     try {
         const { title, description, price, category, stock, images, brand, color, sizes } = req.body;
 
-        // Aapke Schema me 'size' ek array hai object ka: [{ name: String, quantity: Number }]
-        // Frontend se hum comma separated string "S, M, L" bhej rahe hain, usko convert karna padega
+        // Schema expects 'size' as array of objects: [{ name: String, quantity: Number }]
+        // Frontend sends comma-separated string "S, M, L" — convert it here
         let sizeArray = [];
         if (sizes && typeof sizes === 'string') {
             const sizeStringArray = sizes.split(',').map(s => s.trim());
-            // Har size ke liye stock ko barabar baat rahe hain (Logic assumption based on your schema)
+            // Distribute stock equally across sizes
             const qtyPerSize = Math.floor(stock / sizeStringArray.length) || 0;
 
             sizeArray = sizeStringArray.map(s => ({
@@ -66,13 +65,13 @@ const createProduct = async (req, res) => {
             title,
             description,
             price,
-            category, // Ye Frontend se Category ID aani chahiye
+            category, // Category ID from frontend
             stock,
             images,
             brand,
             color,
             size: sizeArray,
-            sellerId: req.user._id, // ✅ Schema ke mutabiq 'sellerId' use kiya hai
+            sellerId: req.user._id, // Assign the logged-in seller as owner
         });
 
         const createdProduct = await product.save();
@@ -91,7 +90,7 @@ const updateProduct = async (req, res) => {
         const product = await Product.findById(req.params.id);
 
         if (product) {
-            // ✅ Check: Sirf wahi seller edit kar sake jisne banaya hai
+            // Only the seller who created this product can edit it
             if (product.sellerId.toString() !== req.user._id.toString()) {
                 return res.status(401).json({ message: "Not authorized to edit this product" });
             }
@@ -132,7 +131,7 @@ const deleteProduct = async (req, res) => {
         const product = await Product.findById(req.params.id);
 
         if (product) {
-            // ✅ Check: Sirf owner hi delete kar sake
+            // Only the owner can delete this product
             if (product.sellerId.toString() !== req.user._id.toString()) {
                 return res.status(401).json({ message: "Not authorized to delete this product" });
             }
@@ -152,10 +151,64 @@ const deleteProduct = async (req, res) => {
 const getTrendingProducts = async (req, res) => {
     try {
         const products = await Product.aggregate([{ $sample: { size: 8 } }]);
-        // Aggregate query plain objects deti hai, isliye Model.populate use karna padta hai
         await Product.populate(products, { path: "category" });
         res.json(products);
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Search & filter products
+// @route   GET /api/products/search?keyword=&category=&minPrice=&maxPrice=&brand=&color=&sort=
+const searchProducts = async (req, res) => {
+    try {
+        const { keyword, category, minPrice, maxPrice, brand, color, sort } = req.query;
+
+        const filter = {};
+
+        // Text search on title and description
+        if (keyword) {
+            filter.$or = [
+                { title: { $regex: keyword, $options: "i" } },
+                { description: { $regex: keyword, $options: "i" } },
+            ];
+        }
+
+        // Category filter (by ID)
+        if (category) {
+            filter.category = category;
+        }
+
+        // Price range
+        if (minPrice || maxPrice) {
+            filter.price = {};
+            if (minPrice) filter.price.$gte = Number(minPrice);
+            if (maxPrice) filter.price.$lte = Number(maxPrice);
+        }
+
+        // Brand filter
+        if (brand) {
+            filter.brand = { $regex: brand, $options: "i" };
+        }
+
+        // Color filter
+        if (color) {
+            filter.color = { $regex: color, $options: "i" };
+        }
+
+        // Sort options
+        let sortOption = { createdAt: -1 }; // default: newest
+        if (sort === "price_asc") sortOption = { price: 1 };
+        else if (sort === "price_desc") sortOption = { price: -1 };
+        else if (sort === "newest") sortOption = { createdAt: -1 };
+
+        const products = await Product.find(filter)
+            .populate("category")
+            .sort(sortOption);
+
+        res.json(products);
+    } catch (error) {
+        console.error("Search error:", error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -167,5 +220,6 @@ export {
     createProduct,
     updateProduct,
     deleteProduct,
-    getTrendingProducts
+    getTrendingProducts,
+    searchProducts
 };
