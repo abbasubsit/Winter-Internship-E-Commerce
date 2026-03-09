@@ -28,10 +28,10 @@ const Navbar = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchTerm.trim()) {
-            navigate(`/shop?keyword=${encodeURIComponent(searchTerm.trim())}`);
+            navigate(`/?keyword=${encodeURIComponent(searchTerm.trim())}`);
             setSearchTerm("");
         } else {
-            navigate("/shop");
+            navigate("/");
         }
     };
 
@@ -108,7 +108,6 @@ const Navbar = () => {
                     ) : (
                         <>
                             <Link to="/" className="hover:text-black transition font-medium text-sm text-gray-600">Home</Link>
-                            <Link to="/shop" className="hover:text-black transition font-medium text-sm text-gray-600">Shop</Link>
                             <Link to="/menProducts" className="hover:text-black transition font-medium text-sm text-gray-600">Men</Link>
                             <Link to="/womenProducts" className="hover:text-black transition font-medium text-sm text-gray-600">Women</Link>
                             <Link to="/trendingProducts" className="hover:text-black transition font-medium text-sm text-gray-600">Trending</Link>

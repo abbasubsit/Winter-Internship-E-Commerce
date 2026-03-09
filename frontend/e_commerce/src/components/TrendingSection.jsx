@@ -31,7 +31,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange }) => {
 };
 
 // --- INTERNAL COMPONENT: TrendingProductCard ---
-const TrendingProductCard = ({ product }) => {
+const TrendingProductCard = React.memo(({ product }) => {
     const dispatch = useDispatch();
 
     if (!product) return null;
@@ -58,6 +58,7 @@ const TrendingProductCard = ({ product }) => {
                     <img
                         src={imageSrc}
                         alt={product.title || "Product"}
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 </Link>
@@ -97,7 +98,9 @@ const TrendingProductCard = ({ product }) => {
             </div>
         </div>
     );
-};
+});
+
+TrendingProductCard.displayName = "TrendingProductCard";
 
 // --- MAIN COMPONENT: TrendingSection ---
 const TrendingSection = () => {

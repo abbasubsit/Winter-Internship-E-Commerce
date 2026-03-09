@@ -1,10 +1,11 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Heart, Eye, Star } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { BASE_URL } from "../services/api";
 
-const ProductCard = ({ product }) => {
+const ProductCard = React.memo(({ product }) => {
     const dispatch = useDispatch();
 
     if (!product) return null;
@@ -29,6 +30,7 @@ const ProductCard = ({ product }) => {
                     <img
                         src={product.images && product.images[0] ? `${BASE_URL}${product.images[0]}` : "https://via.placeholder.com/300"}
                         alt={product.title}
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                 </Link>
@@ -84,6 +86,8 @@ const ProductCard = ({ product }) => {
             </div>
         </div>
     );
-};
+});
+
+ProductCard.displayName = "ProductCard";
 
 export default ProductCard;

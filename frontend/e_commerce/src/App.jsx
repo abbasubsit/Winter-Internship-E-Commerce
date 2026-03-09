@@ -1,36 +1,41 @@
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { syncCart } from "./services/cartService";
 
-// Components
+// Components (always loaded - part of layout)
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import TrendingSection from "./components/TrendingSection";
 import HomeCarousel from './HomeCarosel/HomeCarousel';
 import PrivateRoute from "./components/PrivateRoute";
 import RoleRoute from "./components/RoleRoute";
 
-// Pages
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import CartPage from "./pages/CartPage";
-import SellerDashboard from "./pages/SellerDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import ProductDetailsPage from "./pages/ProductDetailsPage";
-import ShippingPage from "./pages/ShippingPage";
-import PaymentPage from "./pages/PaymentPage";
-import PlaceOrderPage from "./pages/PlaceOrderPage";
-import MyOrdersPage from "./pages/MyOrdersPage";
-import OrderDetailsPage from "./pages/OrderDetailspage";
-import SellerLandingPage from "./pages/SellerLandingPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
+// Lazy-loaded Pages (only downloaded when user visits the route)
+const ShopPage = lazy(() => import("./pages/ShopPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const CartPage = lazy(() => import("./pages/CartPage"));
+const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const ProductDetailsPage = lazy(() => import("./pages/ProductDetailsPage"));
+const ShippingPage = lazy(() => import("./pages/ShippingPage"));
+const PaymentPage = lazy(() => import("./pages/PaymentPage"));
+const PlaceOrderPage = lazy(() => import("./pages/PlaceOrderPage"));
+const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage"));
+const OrderDetailsPage = lazy(() => import("./pages/OrderDetailspage"));
+const SellerLandingPage = lazy(() => import("./pages/SellerLandingPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const MenProduct = lazy(() => import("./pages/MenProduct"));
+const WomenProduct = lazy(() => import("./pages/WomenProduct"));
+const TrendingSection = lazy(() => import("./components/TrendingSection"));
 
-import MenProduct from "./pages/MenProduct";
-import WomenProduct from "./pages/WomenProduct";
-import ShopPage from "./pages/ShopPage";
+// Loading spinner shown while a lazy page is being downloaded
+const PageLoader = () => (
+  <div className="flex justify-center items-center h-[60vh]">
+    <div className="w-10 h-10 border-[3px] border-black border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 function App() {
   const location = useLocation();
@@ -64,36 +69,37 @@ function App() {
       {!hideLayout && <Navbar />}
       {(location.pathname === "/" || location.pathname === "/trendingProducts") && <HomeCarousel />}
 
-      <Routes>
-        {/* --- PUBLIC ROUTES --- */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/shop" element={<ShopPage />} />
-        <Route path="/menProducts" element={<MenProduct />} />
-        <Route path="/womenProducts" element={<WomenProduct />} />
-        <Route path="/trendingProducts" element={<TrendingSection />} />
-        <Route path="/product/:id" element={<ProductDetailsPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-        <Route path="/seller-register" element={<SellerLandingPage />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* --- PUBLIC ROUTES --- */}
+          <Route path="/" element={<ShopPage />} />
+          <Route path="/menProducts" element={<MenProduct />} />
+          <Route path="/womenProducts" element={<WomenProduct />} />
+          <Route path="/trendingProducts" element={<TrendingSection />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route path="/seller-register" element={<SellerLandingPage />} />
 
-        {/* --- PRIVATE ROUTES (Any logged-in user) --- */}
-        <Route path="/shipping" element={<PrivateRoute><ShippingPage /></PrivateRoute>} />
-        <Route path="/payment" element={<PrivateRoute><PaymentPage /></PrivateRoute>} />
-        <Route path="/placeorder" element={<PrivateRoute><PlaceOrderPage /></PrivateRoute>} />
-        <Route path="/myorders" element={<PrivateRoute><MyOrdersPage /></PrivateRoute>} />
-        <Route path="/order/:id" element={<PrivateRoute><OrderDetailsPage /></PrivateRoute>} />
+          {/* --- PRIVATE ROUTES (Any logged-in user) --- */}
+          <Route path="/shipping" element={<PrivateRoute><ShippingPage /></PrivateRoute>} />
+          <Route path="/payment" element={<PrivateRoute><PaymentPage /></PrivateRoute>} />
+          <Route path="/placeorder" element={<PrivateRoute><PlaceOrderPage /></PrivateRoute>} />
+          <Route path="/myorders" element={<PrivateRoute><MyOrdersPage /></PrivateRoute>} />
+          <Route path="/order/:id" element={<PrivateRoute><OrderDetailsPage /></PrivateRoute>} />
 
-        {/* --- SELLER ROUTES (role: seller only) --- */}
-        <Route path="/seller/dashboard" element={<RoleRoute role="seller"><SellerDashboard /></RoleRoute>} />
-        <Route path="/seller/products" element={<RoleRoute role="seller"><SellerDashboard /></RoleRoute>} />
-        <Route path="/seller/orders" element={<RoleRoute role="seller"><SellerDashboard /></RoleRoute>} />
+          {/* --- SELLER ROUTES (role: seller only) --- */}
+          <Route path="/seller/dashboard" element={<RoleRoute role="seller"><SellerDashboard /></RoleRoute>} />
+          <Route path="/seller/products" element={<RoleRoute role="seller"><SellerDashboard /></RoleRoute>} />
+          <Route path="/seller/orders" element={<RoleRoute role="seller"><SellerDashboard /></RoleRoute>} />
 
-        {/* --- ADMIN ROUTES (role: admin only) --- */}
-        <Route path="/admin/dashboard" element={<RoleRoute role="admin"><AdminDashboard /></RoleRoute>} />
-      </Routes>
+          {/* --- ADMIN ROUTES (role: admin only) --- */}
+          <Route path="/admin/dashboard" element={<RoleRoute role="admin"><AdminDashboard /></RoleRoute>} />
+        </Routes>
+      </Suspense>
 
       {/* Footer (Hide on Login/Register) */}
       {!hideLayout && <Footer />}

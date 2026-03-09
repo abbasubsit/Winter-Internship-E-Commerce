@@ -17,7 +17,6 @@ const items = carouselData.map(item => (
     />
 
 ))
-console.log(items);
 
 const HomeCarousel = () => (
     <AliceCarousel
